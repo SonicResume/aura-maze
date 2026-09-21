@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- =========================================================================
+     📈 GOOGLE SEO CONFIGURATION & VISIBILITY STRATEGY
+     ========================================================================= -->
+  <title>Free Games for Stress Relief | Aura Maze Arcade</title>
+  <meta name="description" content="Play free games for stress relief instantly. Relax your mind with Aura Maze's collection of calming puzzle games, casual arcades, and anti-stress browser games. No downloads required.">
+  <meta name="keywords" content="free games for stress relief, anxiety relief games, relaxing browser games, anti stress games online, calm games, aura maze arcade">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Google Site Verification Matrix Link -->
+ <meta name="google-site-verification" content="boQmsbKeydipxU2jKtCJu6lk2yDTQ2R7wIK2ru0hZDA" />
+
+  <!-- Open Graph / Social Media Meta Profiles -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content=" https://aura-maze-games.vercel.app">
+  <meta property="og:title" content="Free Games for Stress Relief | Aura Maze Arcade">
+  <meta property="og:description" content="Instantly play calming browser games designed for anxiety and stress relief. Pure, ad-free relaxation.">
+  <meta property="og:image" content=" https://aura-maze-games.vercel.applogo.png">
+
+  <!-- Schema Markup Data Engine for Google Rich Snippets -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "GameServer",
+    "name": "Aura Maze Arcade",
+    "description": "A collection of free web games designed for stress relief, calm gameplay, and anxiety management.",
+    "url": "https://aura-maze-games.vercel.app",
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "People looking for stress relief and relaxation"
+    }
+  }
+  </script>
+
+  <style>
+    /* =========================================================================
+       🎨 RETRO CYBERPUNK ARCADE BRAND THEME
+       ========================================================================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: monospace;
+    }
+
+    body {
+      background-color: #06142E; 
+      color: #FFFFFF; /* High contrast bright solid white */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 20px;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 40px auto;
+      width: 100%;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 30px;
+      position: relative;
+    }
+
+    .brand-logo {
+      display: block;
+      max-width: 120px;
+      height: auto;
+      margin: 0 auto 15px auto;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -2px;
+      color: #FFFFFF;
+      text-transform: uppercase;
+    }
+
+    h1 span {
+      color: #D4AF37; 
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: #D4AF37;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .seo-description {
+      max-width: 1200px;
+      margin: 0 auto 20px auto;
+      padding: 0 10px;
+      font-size: 13px;
+      color: #FFFFFF;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      max-width: 1200px;
+      margin: 40px auto 20px auto;
+      width: 100%;
+      font-size: 14px;
+      color: #D4AF37;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-left: 3px solid #D4AF37;
+      padding-left: 10px;
+    }
+
+    /* =========================================================================
+       📦 UNIFORM 8-GAME COMBINATION GRID
+       ========================================================================= */
+    .arcade-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+    }
+
+    .game-card {
+      background-color: #0A1F44; 
+      border: 1px solid #334155; 
+      border-radius: 16px;
+      padding: 25px;
+      text-decoration: none;
+      color: #FFFFFF; 
+      display: flex;
+      flex-direction: column;
+      height: 240px; 
+      transition: all 0.2s ease-in-out;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(212, 175, 55, 0.8);
+      box-shadow: 0 10px 25px -5px rgba(212, 175, 55, 0.2);
+    }
+
+    .game-card .icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .game-card h3 {
+      font-size: 18px;
+      color: #FFFFFF; 
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .game-card p {
+      font-size: 12px;
+      color: #FFFFFF; 
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .status-badge {
+      margin-top: auto; 
+      align-self: flex-start;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      background-color: rgba(212, 175, 55, 0.15);
+      color: #D4AF37;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 6px;
+    }
+
+    .status-badge.free {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #10B981; 
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* =========================================================================
+       📱 HORIZONTAL BOTTOM APP BANNER LAYOUT
+       ========================================================================= */
+    .banner-grid-container {
+      max-width: 1200px;
+      margin: 40px auto 10px auto;
+      width: 100%;
+      background-color: #0A1F44;
+      border-top: 2px solid #334155;
+      border-bottom: 2px solid #334155;
+      padding: 15px 20px;
+    }
+
+    .banner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      align-items: center;
+    }
+
+    .banner-card {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-decoration: none;
+      color: #FFFFFF;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .banner-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .banner-card .banner-icon {
+      font-size: 24px;
+    }
+
+    .banner-card h4 {
+      font-size: 14px;
+      color: #FFFFFF;
+      margin-bottom: 2px;
+    }
+
+    .banner-card p {
+      font-size: 11px;
+      color: #D4AF37;
+    }
+
+    /* Modal Windows Style */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(6, 20, 46, 0.98);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: #0A1F44;
+      border: 2px solid #D4AF37;
+      padding: 40px;
+      border-radius: 166px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      color: #FFFFFF;
+    }
+
+    .modal-box h2 {
+      color: #FFFFFF;
+      margin-bottom: 20px;
+      font-size: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 10px;
+    }
+
+    .modal-box p {
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      color: #FFFFFF;
+    }
+
+    .modal-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: 1px solid #FFFFFF;
+      color: #FFFFFF;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .modal-close-btn:hover {
+      background: #FFFFFF;
+      color: #06142E;
+    }
+
+    .footer-links {
+      text-align: center;
+      margin-top: auto;
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+
+    .footer-links button {
+      background: transparent;
+      border: none;
+      color: #D4AF37; 
+      font-family: monospace;
+      font-size: 12px;
+      margin: 0 15px;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .footer-links button:hover {
+      color: #FFFFFF;
+      text-decoration: underline;
+    }
+
+        footer {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 11px;
+      color: #64748B;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="logo.png" alt="AURA MAZE Logo" class="brand-logo">
+    <h1>AURA <span>MAZE</span></h1>
+    <div class="subtitle">FREE GAMES FOR STRESS RELIEF & ARCADE MATRIX</div>
+  </header>
+
+  <div class="seo-description">
+    Play free games for stress relief instantly. Relax your mind with Aura Maze's collection of calming puzzle games, casual arcades, and anti-stress browser games. No downloads required.
+  </div>
+
+  <div class="section-title">🕹️ Calming Arcade Nodes (Free Play)</div>
+  
+<main class="arcade-grid">
+  <!-- Game Card 1: Bubble Wrap Popper -->
+  <a href="bubble-wrap-popper/index.html" class="game-card">
+    <div class="icon">🧠</div>
+    <h3>Brain Burst: Burst Bubbles</h3>
+    <p>[ ANTISTRESS SENSOR ACTIVE ]</p>
+    <div style="font-size: 10px; color: #10B981; margin-top: 5px; font-family: monospace;">⚡ TARGET: 24/24 POPS CHANNELS</div>
+    <span class="status-badge free" style="margin-top: auto;">Free Play</span>
+  </a>
+
+  <!-- Game Card 2: Cyber Chess Tactics -->
+  <a href="cyber-chess-tactics/index.html" class="game-card">
+    <div class="icon">♟️</div>
+    <h3>Cyber Chess Tactics</h3>
+    <p>Rapid speed-chess checkmate challenger. Use tactical piece matrices to strike down the Red King.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 3: Cyber Serpent Retro Slither -->
+  <a href="cyber-serpent-retro-slither/index.html" class="game-card">
+    <div class="icon">🐍</div>
+    <h3>Cyber Serpent Retro Slither</h3>
+    <p>Grow your digital node matrix while avoiding fatal outer firewall boundaries.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 4: Dot Dash Neon Nexus -->
+  <a href="dot-dash-neon-nexus/index.html" class="game-card">
+    <div class="icon">🟣</div>
+    <h3>Dot Dash Neon Nexus</h3>
+    <p>High-intensity precision tap tracking interface challenge across moving targets.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 5: Dungeon Glam RPG -->
+  <a href="dungeon-glam-rpg/index.html" class="game-card">
+    <div class="icon">💄</div>
+    <h3>Dungeon Glam RPG</h3>
+    <p>Stylized tactical match-3 combat. Cascade colored fragments to inflict devastating boss hits.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 6: Frogger Feast Pond Panic -->
+  <a href="frogger-feast-pond-panic/index.html" class="game-card">
+    <div class="icon">🐸</div>
+    <h3>Frogger Feast Pond Panic</h3>
+    <p>Navigate busy vector stream routes safely to score harvesting elements.</p>
+    <span class="status-badge">Premium Node</span>
+  </a>
+
+  <!-- Game Card 7: Iron Vanguard Tank Blitz -->
+  <a href="iron-vanguard-tank-blitz/index.html" class="game-card">
+    <div class="icon">🚜</div>
+    <h3>Iron Vanguard: Tank Blitz</h3>
+    <p>Heavy tactical grid warfare engine. Destroy opposing security drones.</p>
+    <span class="status-badge">Premium Node</span>
+  </a>
+
+  <!-- Game Card 8: Moto Mayhem Nitro Rush -->
+  <a href="moto-mayhem-nitro-rush/index.html" class="game-card">
+    <div class="icon">🏍️</div>
+    <h3>Moto Mayhem: Nitro Rush</h3>
+    <p>High-speed endless obstacle evasion steering engine loop.</p>
+    <span class="status-badge">Premium Node</span>
+  </a>
+
+  <!-- Game Card 9: Neon Brick Breaker -->
+  <a href="neon-brick-breaker/index.html" class="game-card">
+    <div class="icon">🧱</div>
+    <h3>Neon Brick Breaker</h3>
+    <p>Fast bounced momentum tracking loops. Break high-density neon block structures cleanly.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 10: Neon Sudoku Grid -->
+  <a href="neon-sudoku-grid/index.html" class="game-card">
+    <div class="icon">🧩</div>
+    <h3>Neon Sudoku Grid</h3>
+    <p>Minimalist puzzle logic interface. Populate grid cells with non-conflicting numbers.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 11: Retro Space Invaders -->
+  <a href="retro-space-invaders/index.html" class="game-card">
+    <div class="icon">🛸</div>
+    <h3>Retro Space Invaders</h3>
+    <p>Vintage 60FPS alien fleet interceptor loop. Dodge incoming laser salvos.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+
+  <!-- Game Card 12: Rocket Rumble Cosmo Orbit -->
+  <a href="rocket-rumble-cosmo-orbit/index.html" class="game-card">
+    <div class="icon">🚀</div>
+    <h3>Rocket Rumble: Cosmo Orbit</h3>
+    <p>Pilot deep space routes while tracking asteroid vector matrices.</p>
+    <span class="status-badge">Premium Node</span>
+  </a>
+
+  <!-- Game Card 13: Shadow Blade Ninja Strike -->
+  <a href="shadow-blade-ninja-strike/index.html" class="game-card">
+    <div class="icon">🥷</div>
+    <h3>Shadow Blade: Ninja Strike</h3>
+    <p>Wall-jumping reflex runner platform action challenge arrays.</p>
+    <span class="status-badge free">Free Play</span>
+  </a>
+</main>
+
+   <div class="section-title">📱 Our Business Platforms</div>
+
+   <!-- =========================================================================
+       📱 HORIZONTAL MULTI-COLOUR SCROLLING APP TICKER BANNER (Ad Ticker Grid Only)
+       ========================================================================= -->
+  <style>
+    @keyframes tickerScroll {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); } /* Adjusted to cycle seamless copies cleanly */
+    }
+    .ticker-wrap {
+      width: 100%;
+      overflow: hidden;
+      display: flex;
+    }
+    .ticker-move {
+      display: flex;
+      gap: 30px;
+      animation: tickerScroll 45s linear infinite;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .app-node {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-width: 280px;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+      color: #FFFFFF;
+    }
+    .app-node:hover {
+      transform: translateY(-2px);
+      border-color: #FFFFFF;
+    }
+    .app-node h4 {
+      font-size: 13px;
+      margin-bottom: 2px;
+      color: #FFFFFF;
+    }
+    .app-node p {
+      font-size: 11px;
+      opacity: 0.8;
+      color: #FFFFFF;
+    }
+    .banner-icon {
+      font-size: 24px;
+    }
+    .app-orange { background-color: #C2410C; }
+    .app-blue { background-color: #1D4ED8; }
+    .app-crimson { background-color: #B91C1C; }
+    .app-purple { background-color: #6D28D9; }
+    .app-teal { background-color: #0F766E; }
+    .app-green { background-color: #047857; }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(6, 20, 46, 0.98);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+    }
+    .modal-box {
+      background: #0A1F44;
+      border: 2px solid #D4AF37;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      color: #FFFFFF;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: transparent;
+      border: 1px solid #FFFFFF;
+      color: #FFFFFF;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .footer-links {
+      text-align: center;
+      margin: 40px auto 10px auto;
+      padding-bottom: 10px;
+    }
+    .footer-links button {
+      background: none;
+      border: none;
+      margin: 0 12px;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 12px;
+      text-decoration: underline;
+    }
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      padding-bottom: 30px;
+      font-family: monospace;
+    }
+  </style>
+
+  <div class="banner-grid-container" style="max-width: 1200px; margin: 40px auto 10px auto; width: 100%; background-color: #0A1F44; border-top: 2px solid #334155; border-bottom: 2px solid #334155; padding: 15px 0; overflow: hidden; position: relative;">
+    <div class="ticker-wrap">
+      <!-- MAIN CONTAINER GRID NODE -->
+      <div class="ticker-move">
+        
+        <!-- App Ad 1: Noah Workspace AI -->
+        <div class="app-node app-orange" onclick="processSecureRedirect('C')">
+          <div class="banner-icon">🚀</div>
+          <div>
+            <h4>Noah Workspace AI</h4>
+            <p>://sonicresume.com</p>
+          </div>
+        </div>
+
+        <!-- App Ad 2: Noah Resume -->
+        <div class="app-node app-blue" onclick="processSecureRedirect('E')">
+          <div class="banner-icon">📄</div>
+          <div>
+            <h4>Noah Resume</h4>
+            <p>noah-resume.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 3: Noah Legal Docs AI -->
+        <div class="app-node app-crimson" onclick="processSecureRedirect('D')">
+          <div class="banner-icon">⚖️</div>
+          <div>
+            <h4>Noah Legal</h4>
+            <p>noah-legal.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 4: Noah Language -->
+        <div class="app-node app-purple" onclick="processSecureRedirect('F')">
+          <div class="banner-icon">🌐</div>
+          <div>
+            <h4>Noah Language</h4>
+            <p>noah-language.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 5: Noah AI Visual Scanner -->
+        <div class="app-node app-teal" onclick="processSecureRedirect('G')">
+          <div class="banner-icon">👁️</div>
+          <div>
+            <h4>Noah AI Visual Scanner</h4>
+            <p>noah-ai-visual-scanner.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 6: Noah AI Write -->
+        <div class="app-node app-orange" onclick="processSecureRedirect('H')">
+          <div class="banner-icon">✍️</div>
+          <div>
+            <h4>Noah AI Write</h4>
+            <p>noah-ai-write.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 7: Noah Image -->
+        <div class="app-node app-purple" onclick="processSecureRedirect('I')">
+          <div class="banner-icon">🎨</div>
+          <div>
+            <h4>Noah Image</h4>
+            <p>noahimage.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 8: Noah Ink -->
+        <div class="app-node app-teal" onclick="processSecureRedirect('J')">
+          <div class="banner-icon">✒️</div>
+          <div>
+            <h4>Noah Ink</h4>
+            <p>noah-ink.vercel.app</p>
+          </div>
+        </div>
+
+        <!-- App Ad 9: Noah Commerce -->
+        <div class="app-node app-green" onclick="processSecureRedirect('K')">
+          <div class="banner-icon">🛒</div>
+          <div>
+            <h4>Noah Commerce</h4>
+            <p>noah-commerce.vercel.app</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INLINE LOOP DUPLICATE SET TO ENSURE SEAMLESS VISIBILITY CHANNELS -->
+      <div class="ticker-move" aria-hidden="true">
+        <div class="app-node app-orange" onclick="processSecureRedirect('C')"><div class="banner-icon">🚀</div><div><h4>Noah Workspace AI</h4><p>://sonicresume.com</p></div></div>
+        <div class="app-node app-blue" onclick="processSecureRedirect('E')"><div class="banner-icon">📄</div><div><h4>Noah Resume</h4><p>noah-resume.vercel.app</p></div></div>
+        <div class="app-node app-crimson" onclick="processSecureRedirect('D')"><div class="banner-icon">⚖️</div><div><h4>Noah Legal</h4><p>noah-legal.vercel.app</p></div></div>
+        <div class="app-node app-purple" onclick="processSecureRedirect('F')"><div class="banner-icon">🌐</div><div><h4>Noah Language</h4><p>noah-language.vercel.app</p></div></div>
+        <div class="app-node app-teal" onclick="processSecureRedirect('G')"><div class="banner-icon">👁️</div><div><h4>Noah AI Visual Scanner</h4><p>noah-ai-visual-scanner.vercel.app</p></div></div>
+        <div class="app-node app-orange" onclick="processSecureRedirect('H')"><div class="banner-icon">✍️</div><div><h4>Noah AI Write</h4><p>noah-ai-write.vercel.app</p></div></div>
+        <div class="app-node app-purple" onclick="processSecureRedirect('I')"><div class="banner-icon">🎨</div><div><h4>Noah Image</h4><p>noahimage.vercel.app</p></div></div>
+        <div class="app-node app-teal" onclick="processSecureRedirect('J')"><div class="banner-icon">✒️</div><div><h4>Noah Ink</h4><p>noah-ink.vercel.app</p></div></div>
+        <div class="app-node app-green" onclick="processSecureRedirect('K')"><div class="banner-icon">🛒</div><div><h4>Noah Commerce</h4><p>noah-commerce.vercel.app</p></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🕹️ HIDDEN COMPACT LEGAL MODALS -->
+  <div id="termsModal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="toggleModal('termsModal', false)">[X] Close</button>
+      <h2>Terms of Service</h2>
+      <p>1. <strong>Execution Access:</strong> By initializing play nodes on Aura Maze, you access software engineered strictly for therapeutic stress mitigation.</p>
+      <p>2. <strong>Integrity Control:</strong> Users are forbidden from deploying automated data collection engines or scrapers against our properties.</p>
+    </div>
+  </div>
+
+  <div id="privacyModal" class="modal-overlay">
+    <div class="modal-box">
+      <button class="modal-close-btn" onclick="toggleModal('privacyModal', false)">[X] Close</button>
+      <h2>Privacy Agreement</h2>
+      <p>1. <strong>Data Footprint:</strong> This site collects no operational tracking cookies. High scores are cached strictly on your local client machine hardware sandboxes.</p>
+      <p>2. <strong>Zero Monetization:</strong> We never log, parse, or broadcast your user network credentials to external corporate advertising matrices.</p>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       🔗 UNIFIED FOOTER BAR NAVIGATION (All Verified Links Active Here)
+       ========================================================================= -->
+  <div class="footer-links">
+    <button style="color: #FFFFFF;" onclick="processSecureRedirect('A')">Contact Support</button>
+    <button style="color: #FFFFFF;" onclick="processSecureRedirect('B')">Facebook Profile</button>
+    <button style="color: #FFFFFF;" onclick="toggleModal('termsModal', true)">Terms</button>
+    <button style="color: #FFFFFF;" onclick="toggleModal('privacyModal', true)">Privacy</button>
+  </div>
+
+  <footer>
+    &copy; 2026 AURA MAZE ENTERPRISES // ALL SYSTEMS OPERATIONAL
+  </footer>
+
+  <script>
+    let isUserLoggedIn = false; 
+
+    const secureKeyStore = {
+      A: "aHR0cHM6Ly93d3cuc29uaWNyZXN1bWUuY29tL2NvbnRhY3Q=", 
+      B: "aHR0cHM6Ly93d3cuZmFjZWJvb2suY29tL3Byb2ZpbGUucGhwP2lkPTYxNTg1OTE2NzIxMDYw", 
+      C: "aHR0cHM6Ly9ub2FoLnNvbmljcmVzdW1lLmNvbS8=", 
+      D: "aHR0cHM6Ly9ub2FoLWxlZ2FsLnZlcmNlbC5hcHAv", 
+      E: "aHR0cHM6Ly9ub2FoLXJlc3VtZS52ZXJjZWwuYXBwLw==", 
+      F: "aHR0cHM6Ly9ub2FoLWxhbmd1YWdlLnZlcmNlbC5hcHAv", 
+      G: "aHR0cHM6Ly9ub2FoLWFpLXZpc3VhbC1zY2FubmVyLnZlcmNlbC5hcHAv", 
+      H: "aHR0cHM6Ly9ub2FoLWFpLXdyaXRlLnZlcmNlbC5hcHAv", 
+      I: "aHR0cHM6Ly9ub2FoaW1hZ2UudmVyY2VsLmFwcC8=", 
+      J: "aHR0cHM6Ly9ub2FoLWluay52ZXJjZWwuYXBwLw==", 
+      K: "aHR0cHM6Ly9ub2FoLWNvbW1lcmNlLnZlcmNlbC5hcHAv" 
+    };
+
+    function launchGame(gameUrl, isPremium) {
+      if (isPremium && !isUserLoggedIn) {
+        alert("ACCESS DENIED: Authorization required. Please log into the Aura Portal.");
+        toggleModal('authModal', true); 
+      } else {
+        window.location.href = gameUrl;
+      }
+    }
+
+    function processSecureRedirect(keyId) {
+      try {
+        const structuralToken = secureKeyStore[keyId];
+        if (!structuralToken) return;
+        const destinationTarget = atob(structuralToken);
+        window.open(destinationTarget, "_blank", "noopener,noreferrer");
+      } catch (e) {
+        console.error("System isolation security error.");
+      }
+    }
+
+    function toggleModal(modalId, displayState) {
+      const modalElement = document.getElementById(modalId);
+      if (modalElement) {
+        modalElement.style.display = displayState ? "flex" : "none";
+      }
+    }
+  </script>
+</body>
+</html>
+
+

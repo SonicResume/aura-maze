@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NOAH: Cyber Chess Tactics</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: radial-gradient(circle at top, #090514, #020105);
+    color: white;
+    user-select: none;
+    overflow: hidden;
+  }
+  #nav-container {
+    width: 100%;
+    max-width: 900px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .back-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #a855f7;
+    padding: 8px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: all 0.2s ease;
+  }
+  .back-btn:hover {
+    background: #a855f7;
+    color: white;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+    transform: translateY(-2px);
+  }
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    margin: 0 0 5px 0;
+    background: linear-gradient(to right, #a855f7, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  #hud {
+    margin-bottom: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #94a3b8;
+  }
+  #workspace {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+    background: rgba(15, 10, 30, 0.4);
+    padding: 25px;
+    border-radius: 32px;
+    border: 1px solid #3b0764;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  }
+  #canvas-container {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(168, 85, 247, 0.2);
+  }
+  canvas {
+    display: block;
+    cursor: pointer;
+  }
+  #guide-panel {
+    width: 280px;
+    background: rgba(18, 11, 36, 0.8);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  #guide-panel h3 {
+    margin: 0 0 12px 0;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #a855f7;
+    border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+    padding-bottom: 6px;
+  }
+  .rule-item {
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .ability-badge {
+    display: inline-block;
+    background: #6366f1;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-weight: 900;
+    font-size: 10px;
+    margin-right: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div id="nav-container">
+  <a href="../index.html" class="back-btn">&larr; Return to Arcade</a>
+</div>
+
+<h1>🥷 Cyber Chess Tactics</h1>
+<div id="hud">
+  Score: <span id="score">0</span> | High Score: <span id="high-score">0</span> | Timer: <span id="timer">15</span>s
+</div>
+
+<div id="workspace">
+  <div id="canvas-container">
+    <canvas id="gameCanvas" width="560" height="560"></canvas>
+  </div>
+
+  <aside id="guide-panel">
+    <h3>🎯 Tactical Protocol</h3>
+    <div class="rule-item">1. Click your BLUE weapon piece once to highlight it.</div>
+    <div class="rule-item">2. Click the RED KING (👑) square to instantly capture him.</div>
+    <div class="rule-item">3. Capture fast before the countdown clock hits 0.</div>
+    
+    <h3>⚔️ Movement Abilities</h3>
+    <div class="rule-item"><span class="ability-badge">Q</span> Queen: Line attacks vertically, horizontally, or diagonally.</div>
+    <div class="rule-item"><span class="ability-badge">R</span> Rook: Line attacks straight up, down, left, or right.</div>
+    <div class="rule-item"><span class="ability-badge">B</span> Bishop: Line attacks exclusively on cross diagonals.</div>
+    <div class="rule-item"><span class="ability-badge">N</span> Knight: Attacks in an L-shape jumping pattern.</div>
+
+    <h3>📊 Parameters</h3>
+    <div class="rule-item">✅ Win: +100 Points &amp; +3 Seconds reward.</div>
+    <div class="rule-item">🚨 Miss: Deducts 4 seconds penalty.</div>
+  </aside>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const boardSize = 8;
+const tileSize = canvas.width / boardSize;
+
+let score = 0;
+let highScore = 0;
+let timeLeft = 15;
+let gameOver = false;
+let selectedTile = null;
+let timerInterval = null;
+
+let boardState = Array(64).fill(null);
+let targetKingIndex = -1;
+let attackingPieceIndex = -1;
+
+function loadHighScore() {
+  const saved = localStorage.getItem("noah_chess_high_score");
+  highScore = saved ? parseInt(saved, 10) : 0;
+  document.getElementById("high-score").innerText = highScore;
+}
+
+function updateHighScore() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("noah_chess_high_score", highScore.toString());
+    document.getElementById("high-score").innerText = highScore;
+  }
+}
+
+function generatePuzzle() {
+  boardState.fill(null);
+  selectedTile = null;
+
+  // 1. Force a math lock separation to verify king placement coordinates
+  targetKingIndex = Math.floor(Math.random() * 64);
+  boardState[targetKingIndex] = { type: "K", color: "enemy" };
+
+  const playerTypes = ["R", "B", "Q", "N"];
+  const chosenType = playerTypes[Math.floor(Math.random() * playerTypes.length)];
+
+  // 2. Loop generation mapping pattern checking for index collisions
+  let spawnIndex = -1;
+  let attempts = 0;
+  
+  while (attempts < 200) {
+    let testIndex = Math.floor(Math.random() * 64);
+    if (testIndex !== targetKingIndex) {
+      // Temporarily store variables to run capture trajectory testing loops
+      boardState[testIndex] = { type: chosenType, color: "player" };
+      if (checkLegalCapture(testIndex, targetKingIndex)) {
+        spawnIndex = testIndex;
+        break;
+      }
+      boardState[testIndex] = null; // Flush failed coordinates
+    }
+    attempts++;
+  }
+
+  // Fallback guard block if collision array math loops get trapped
+  if (spawnIndex === -1) {
+    spawnIndex = targetKingIndex === 0 ? 9 : 0;
+    boardState[spawnIndex] = { type: "Q", color: "player" };
+  }
+
+  attackingPieceIndex = spawnIndex;
+  selectedTile = null;
+
+  // 3. Add 3 inert decorative filler units safely around the map boundaries
+  let fillers = 0;
+  while (fillers < 3) {
+    let fIdx = Math.floor(Math.random() * 64);
+    if (boardState[fIdx] === null) {
+      boardState[fIdx] = { type: "P", color: "neutral" };
+      fillers++;
+    }
+  }
+}
+
+function checkLegalCapture(from, to) {
+  const piece = boardState[from];
+  if (!piece) return false;
+
+  const r1 = Math.floor(from / boardSize), c1 = from % boardSize;
+  const r2 = Math.floor(to / boardSize), c2 = to % boardSize;
+  const dR = Math.abs(r1 - r2);
+  const dC = Math.abs(c1 - c2);
+
+  switch (piece.type) {
+    case "R": return (r1 === r2 || c1 === c2);
+    case "B": return (dR === dC);
+    case "Q": return (r1 === r2 || c1 === c2 || dR === dC);
+    case "N": return (dR === 1 && dC === 2) || (dR === 2 && dC === 1);
+    default: return false;
+  }
+}
+
+// Fixed Input Event Coordinate Tracker Array Interceptor
+canvas.addEventListener("mousedown", (e) => {
+  if (gameOver) {
+    resetGame();
+    return;
+  }
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const col = Math.floor(mouseX / tileSize);
+  const row = Math.floor(mouseY / tileSize);
+  
+  if (col < 0 || col >= boardSize || row < 0 || row >= boardSize) return;
+  const clickedIndex = row * boardSize + col;
+
+  if (selectedTile === null) {
+    // Stage the click highlight only if the user targeted their own blue weapon
+    if (boardState[clickedIndex] && boardState[clickedIndex].color === "player") {
+      selectedTile = clickedIndex;
+    }
+  } else {
+    // If the tool is highlighted, check if the targeted position is the Red King
+    if (clickedIndex === targetKingIndex && checkLegalCapture(selectedTile, clickedIndex)) {
+      score += 100;
+      timeLeft = Math.min(15, timeLeft + 3); // Gain a tiny time reward extension bonus
+      document.getElementById("score").innerText = score;
+      updateHighScore();
+      generatePuzzle();
+    } else {
+      // Wrong moves trigger time deduction penalty metrics
+      timeLeft = Math.max(0, timeLeft - 4);
+      if (timeLeft <= 0) gameOver = true;
+    }
+    selectedTile = null;
+  }
+  render();
+});
+
+function runCountdown() {
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (gameOver) {
+      clearInterval(timerInterval);
+      return;
+    }
+    timeLeft--;
+    document.getElementById("timer").innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+      gameOver = true;
+      clearInterval(timerInterval);
+    }
+    render();
+  }, 1000);
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Redraw board grid backgrounds
+  for (let r = 0; r < boardSize; r++) {
+    for (let c = 0; c < boardSize; c++) {
+      const idx = r * boardSize + c;
+      const isDark = (r + c) % 2 === 1;
+      
+      ctx.fillStyle = isDark ? "#120b24" : "#1a1235";
+      ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+
+      if (idx === selectedTile) {
+        ctx.fillStyle = "rgba(168, 85, 247, 0.35)";
+        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+        ctx.strokeStyle = "#a855f7";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(c * tileSize + 2, r * tileSize + 2, tileSize - 4, tileSize - 4);
+      }
+    }
+  }
+
+  // Draw character icons inside canvas blocks
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  
+  for (let i = 0; i < 64; i++) {
+    const piece = boardState[i];
+    if (!piece) continue;
+
+    const row = Math.floor(i / boardSize);
+    const col = i % boardSize;
+    const x = col * tileSize + tileSize / 2;
+    const y = row * tileSize + tileSize / 2;
+
+    if (piece.color === "enemy") {
+      ctx.font = "36px Arial";
+      ctx.fillText("👑", x, y);
+    } else if (piece.color === "player") {
+      ctx.fillStyle = "#6366f1";
+      ctx.font = "bold 34px 'Segoe UI', Arial, sans-serif";
+      ctx.fillText(piece.type, x, y);
+    } else {
+      ctx.fillStyle = "#334155";
+      ctx.font = "28px Arial";
+      ctx.fillText("♙", x, y);
+    }
+  }
+
+  if (gameOver) {
+    ctx.fillStyle = "rgba(9, 5, 20, 0.94)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "#ef4444";
+    ctx.font = "bold 26px 'Segoe UI', sans-serif";
+    ctx.fillText("TACTICAL NETWORK TIMEOUT", canvas.width / 2, canvas.height / 2 - 15);
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 12px sans-serif";
+    ctx.fillText("CLICK CANVAS TO INITIALIZE FRESH COMBAT LOOPS", canvas.width / 2, canvas.height / 2 + 30);
+  }
+}
+
+function resetGame() {
+  score = 0;
+  timeLeft = 15;
+  gameOver = false;
+  selectedTile = null;
+  document.getElementById("score").innerText = score;
+  document.getElementById("timer").innerText = timeLeft;
+  generatePuzzle();
+  render();
+  runCountdown();
+}
+
+// Safe initialization delay check loop ensures document assets load completely
+window.addEventListener("load", () => {
+  loadHighScore();
+  resetGame();
+});
+
+// Immediate execution backup if load conditions trigger ahead of array initialization
+loadHighScore();
+resetGame();
+</script>
+
+</body>
+</html>

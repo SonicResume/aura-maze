@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frogger Chow - Premium Edition</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --game-bg: #1e293b;
+            --text: #f8fafc;
+            --accent: #4ade80;
+        }
+        body {
+            font-family: system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* ⬅️ NAVIGATION NODE BASELINE BAR LAYOUT */
+        #menu-container {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 9999;
+        }
+
+        #back-btn {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        #back-btn:hover {
+            border-color: #4ade80;
+            background: #334155;
+            color: #ffffff;
+        }
+
+        .ui-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .stat-box {
+            background: #1e293b;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+        .high-score {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+        #gameCanvas {
+            background-color: var(--game-bg);
+            border: 4px solid var(--accent);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        button {
+            background-color: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 10px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:hover { transform: scale(1.05); }
+    </style>
+</head>
+<body>
+
+    <!-- Active Retro Navigation Link replacing advertisement banner space -->
+    <div id="menu-container">
+        <a id="back-btn" href="../index.html">⬅️ Menu</a>
+    </div>
+
+    <div class="ui-container">
+        <div class="stat-box">Score: <span id="scoreVal">0</span></div>
+        <div class="stat-box high-score">🏆 Best: <span id="highScoreVal">0</span></div>
+        <div class="stat-box">Time: <span id="timerVal">30</span>s</div>
+    </div>
+
+    <canvas id="gameCanvas" width="500" height="420"></canvas>
+
+    <div class="controls">
+        <button id="resetBtn">Play Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreVal = document.getElementById('scoreVal');
+        const highScoreVal = document.getElementById('highScoreVal');
+        const timerVal = document.getElementById('timerVal');
+        const resetBtn = document.getElementById('resetBtn');
+
+        let score = 0;
+        let timeLeft = 30;
+        let gameOver = false;
+        let timerInterval, spawnTimeout, fallingItems = [];
+
+        let highScore = localStorage.getItem('frogger_highscore') || 0;
+        highScoreVal.textContent = highScore;
+
+        const itemPool = [
+            { icon: '🍣', points: 10 }, { icon: '🥟', points: 15 },
+            { icon: '🪰', points: -10 }, { icon: '💣', points: -25 }
+        ];
+
+        const frog = { x: 215, y: 340, width: 70, height: 70, speed: 9, dx: 0 };
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') frog.dx = -frog.speed;
+            if (e.key === 'ArrowRight' || e.key === 'd') frog.dx = frog.speed;
+        });
+        window.addEventListener('keyup', e => {
+            if (['ArrowLeft', 'a', 'ArrowRight', 'd'].includes(e.key)) frog.dx = 0;
+        });
+
+        function spawnItem() {
+            if (gameOver) return;
+            const randomItem = itemPool[Math.floor(Math.random() * itemPool.length)];
+            fallingItems.push({
+                x: Math.random() * (canvas.width - 40) + 20,
+                y: -30, size: 30, speed: Math.random() * 2 + 3, ...randomItem
+            });
+            spawnTimeout = setTimeout(spawnItem, Math.random() * 800 + 400);
+        }
+
+        function update() {
+            if (gameOver) return;
+            frog.x += frog.dx;
+            if (frog.x < 0) frog.x = 0;
+            if (frog.x + frog.width > canvas.width) frog.x = canvas.width - frog.width;
+
+            for (let i = fallingItems.length - 1; i >= 0; i--) {
+                fallingItems[i].y += fallingItems[i].speed;
+
+                if (fallingItems[i].y + 20 >= frog.y && fallingItems[i].y <= frog.y + 25 &&
+                    fallingItems[i].x >= frog.x && fallingItems[i].x <= frog.x + frog.width) {
+                    
+                    score += fallingItems[i].points;
+                    scoreVal.textContent = score;
+                    fallingItems.splice(i, 1);
+                    continue;
+                }
+                if (fallingItems[i].y > canvas.height) fallingItems.splice(i, 1);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = '26px sans-serif'; ctx.textAlign = 'center';
+            fallingItems.forEach(item => ctx.fillText(item.icon, item.x, item.y));
+
+            // Chopsticks
+            ctx.strokeStyle = '#d97706'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(frog.x + 15, frog.y + 50); ctx.lineTo(frog.x + 30, frog.y - 10); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(frog.x + frog.width - 15, frog.y + 50); ctx.lineTo(frog.x + frog.width - 30, frog.y - 10); ctx.stroke();
+
+            // Frog
+            ctx.font = '55px sans-serif';
+            ctx.fillText('🐸', frog.x + (frog.width / 2), frog.y + 55);
+
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff4a4a'; ctx.font = 'bold 36px sans-serif';
+                ctx.fillText('TIME UP!', canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillStyle = '#ffffff'; ctx.font = '20px sans-serif';
+                ctx.fillText(`Final Score: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerVal.textContent = timeLeft;
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function endGame() {
+            gameOver = true;
+            clearInterval(timerInterval);
+            clearTimeout(spawnTimeout);
+
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('frogger_highscore', highScore);
+                highScoreVal.textContent = highScore;
+            }
+        }
+
+        function initGame() {
+            clearInterval(timerInterval); clearTimeout(spawnTimeout);
+            score = 0; timeLeft = 30; gameOver = false; fallingItems = [];
+            frog.x = canvas.width / 2 - frog.width / 2;
+            scoreVal.textContent = score; timerVal.textContent = timeLeft;
+            startTimer(); spawnItem();
+        }
+
+        function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+        resetBtn.addEventListener('click', initGame);
+        initGame(); gameLoop();
+    </script>
+</body>
+</html>

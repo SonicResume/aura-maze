@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NOAH: Neon Brick Breaker</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: radial-gradient(circle at top, #060b13, #020408);
+    color: white;
+    user-select: none;
+    overflow: hidden;
+  }
+  #nav-container {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .back-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #4cc9f0;
+    padding: 8px 18px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transition: all 0.2s ease;
+  }
+  .back-btn:hover {
+    background: #4cc9f0;
+    color: #020408;
+    box-shadow: 0 0 15px rgba(76, 201, 240, 0.4);
+    transform: translateY(-2px);
+  }
+  h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    margin: 0 0 5px 0;
+    background: linear-gradient(to right, #4cc9f0, #f72585);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  #hud {
+    margin-bottom: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #94a3b8;
+  }
+  #canvas-container {
+    position: relative;
+    background: rgba(2, 4, 8, 0.8);
+    border: 2px solid #1e293b;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+  }
+  canvas {
+    display: block;
+    image-rendering: auto;
+  }
+</style>
+</head>
+<body>
+
+<div id="nav-container">
+  <!-- 🔗 LINK GOING STRAIGHT BACK TO THE MAIN ARCADE HUB -->
+  <a href="../index.html" class="back-btn">&larr; Return to Arcade</a>
+</div>
+
+<h1>🧱 Neon Brick Breaker</h1>
+<div id="hud">
+  Score: <span id="score">0</span> | High Score: <span id="high-score">0</span> | Lives: <span id="lives">3</span>
+</div>
+
+<div id="canvas-container">
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+// Game Variables
+let score = 0;
+let highScore = 0;
+let lives = 3;
+let gameOver = false;
+let gameWon = false;
+let lastTime = 0;
+
+// Player Paddle Config
+const paddle = { x: 350, y: 560, w: 100, h: 12, speed: 600 };
+
+// Ball Config Matrix
+const ball = { x: 400, y: 500, radius: 7, vx: 250, vy: -250, speedMultiplier: 1.05 };
+
+// Brick Array Configurations
+const brickRows = 5;
+const brickCols = 9;
+const brickWidth = 72;
+const brickHeight = 20;
+const brickPadding = 8;
+const brickOffsetTop = 50;
+const brickOffsetLeft = 45;
+let bricks = [];
+
+// Layout Color Arrays for the Rows
+const rowColors = ["#f72585", "#b5179e", "#7209b7", "#3f37c9", "#4cc9f0"];
+
+// Controller Arrays
+const keys = {};
+
+// Setup Event Listeners for Movement Controls
+window.addEventListener("keydown", (e) => { keys[e.code] = true; });
+window.addEventListener("keyup", (e) => { keys[e.code] = false; });
+
+// Tracks Mouse Position inside the Canvas boundaries
+window.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  paddle.x = Math.max(15, Math.min(canvas.width - paddle.w - 15, mouseX - paddle.w / 2));
+});
+
+function loadHighScore() {
+  const saved = localStorage.getItem("noah_breaker_high_score");
+  highScore = saved ? parseInt(saved, 10) : 0;
+  document.getElementById("high-score").innerText = highScore;
+}
+
+function updateHighScore() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("noah_breaker_high_score", highScore.toString());
+    document.getElementById("high-score").innerText = highScore;
+  }
+}
+
+function buildBrickField() {
+  bricks = [];
+  for (let r = 0; r < brickRows; r++) {
+    bricks[r] = [];
+    for (let c = 0; c < brickCols; c++) {
+      bricks[r][c] = { x: 0, y: 0, active: 1, color: rowColors[r] };
+    }
+  }
+}
+
+function checkWinCondition() {
+  for (let r = 0; r < brickRows; r++) {
+    for (let c = 0; c < brickCols; c++) {
+      if (bricks[r][c].active === 1) return false;
+    }
+  }
+  return true;
+}
+
+function resetBall() {
+  ball.x = canvas.width / 2;
+  ball.y = paddle.y - 20;
+  ball.vx = (Math.random() > 0.5 ? 220 : -220);
+  ball.vy = -260;
+}
+
+function update(dt) {
+  if (gameOver || gameWon) return;
+
+  // Process Keyboard Actions
+  if (keys["ArrowLeft"] || keys["KeyA"]) {
+    paddle.x = Math.max(15, paddle.x - paddle.speed * dt);
+  }
+  if (keys["ArrowRight"] || keys["KeyD"]) {
+    paddle.x = Math.min(canvas.width - paddle.w - 15, paddle.x + paddle.speed * dt);
+  }
+
+  // Move Ball Positions coordinates
+  ball.x += ball.vx * dt;
+  ball.y += ball.vy * dt;
+
+  // Collision Logic Check: Left / Right Walls
+  if (ball.x - ball.radius < 15) {
+    ball.x = 15 + ball.radius;
+    ball.vx = -ball.vx;
+  } else if (ball.x + ball.radius > canvas.width - 15) {
+    ball.x = canvas.width - 15 - ball.radius;
+    ball.vx = -ball.vx;
+  }
+
+  // Collision Logic Check: Ceiling
+  if (ball.y - ball.radius < 15) {
+    ball.y = 15 + ball.radius;
+    ball.vy = -ball.vy;
+  }
+
+  // Bottom Out boundary (Lose Life Trigger)
+  if (ball.y + ball.radius > canvas.height) {
+    lives--;
+    document.getElementById("lives").innerText = lives;
+    if (lives <= 0) {
+      gameOver = true;
+    } else {
+      resetBall();
+    }
+    return;
+  }
+
+  // Collision Logic Check: Ball hitting the Paddle Layer
+  if (
+    ball.y + ball.radius >= paddle.y &&
+    ball.y - ball.radius <= paddle.y + paddle.h &&
+    ball.x >= paddle.x &&
+    ball.x <= paddle.x + paddle.w
+  ) {
+    // Dynamic angle bounce redirection based on where the ball hits on the paddle
+    const relativeHitPoint = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+    const launchAngle = relativeHitPoint * (Math.PI / 3); // Caps layout at maximum 60-degree deflection index
+    const absoluteSpeed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+
+    ball.vx = absoluteSpeed * Math.sin(launchAngle);
+    ball.vy = -absoluteSpeed * Math.cos(launchAngle);
+    
+    // Safety reposition to prevent getting stuck in paddle layers
+    ball.y = paddle.y - ball.radius;
+  }
+
+  // Collision Logic Check: Ball hitting individual active Bricks
+  for (let r = 0; r < brickRows; r++) {
+    for (let c = 0; c < brickCols; c++) {
+      const b = bricks[r][c];
+      if (b.active === 1) {
+        // Calculate raw bounding geometry markers
+        const bX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+        const bY = r * (brickHeight + brickPadding) + brickOffsetTop;
+        b.x = bX;
+        b.y = bY;
+
+        if (
+          ball.x + ball.radius > bX &&
+          ball.x - ball.radius < bX + brickWidth &&
+          ball.y + ball.radius > bY &&
+          ball.y - ball.radius < bY + brickHeight
+        ) {
+          b.active = 0; // Destroy brick
+          score += 50;
+          document.getElementById("score").innerText = score;
+          updateHighScore();
+
+          // Reflect velocity matrix based on hit vectors
+          ball.vy = -ball.vy;
+
+          // Introduce a tiny acceleration factor to scale gameplay pacing difficulty
+          ball.vx *= ball.speedMultiplier;
+          ball.vy *= ball.speedMultiplier;
+
+          if (checkWinCondition()) {
+            gameWon = true;
+          }
+          return;
+        }
+      }
+    }
+  }
+}
+
+function render() {
+  // Clear Active Screen Array Buffer
+  ctx.fillStyle = "#030712";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Render Glowing Game Border Walls
+  ctx.strokeStyle = "#1e293b";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 10);
+
+  // Render Player Paddle Element Capsule
+  ctx.fillStyle = "#ffffff";
+  ctx.shadowBlur = 15;
+  ctx.shadowColor = "#ffffff";
+  ctx.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  // Render Projectile Ball Element Capsule
+  ctx.fillStyle = "#4cc9f0";
+  ctx.shadowColor = "#4cc9f0";
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Render Grid Bricks Matrix
+  ctx.shadowBlur = 10;
+  for (let r = 0; r < brickRows; r++) {
+    for (let c = 0; c < brickCols; c++) {
+      const b = bricks[r][c];
+      if (b.active === 1) {
+        const bX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+        const bY = r * (brickHeight + brickPadding) + brickOffsetTop;
+        ctx.fillStyle = b.color;
+        ctx.shadowColor = b.color;
+        ctx.fillRect(bX, bY, brickWidth, brickHeight);
+      }
+    }
+  }
+  // Turn off engine shadow maps processing layout for performance security optimization
+  ctx.shadowBlur = 0;
+
+  // Render End-Game Overlays
+  if (gameOver || gameWon) {
+    ctx.fillStyle = "rgba(3, 7, 18, 0.9)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = "black 36px 'Segoe UI', sans-serif";
+    ctx.textAlign = "center";
+    
+    if (gameOver) {
+      ctx.fillStyle = "#f72585";
+      ctx.fillText("MATRIX CRITICAL LOSS", canvas.width / 2, canvas.height / 2 - 10);
+    } else {
+      ctx.fillStyle = "#4cc9f0";
+      ctx.fillText("DUNGEON VAULT CONQUERED", canvas.width / 2, canvas.height / 2 - 10);
+    }
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText("CLICK THE CANVAS BOX TERMINAL TO RESET MATRIX STATUS", canvas.width / 2, canvas.height / 2 + 30);
+  }
+}
+
+function resetGame() {
+  score = 0;
+  lives = 3;
+  gameOver = false;
+  gameWon = false;
+  document.getElementById("score").innerText = score;
+  document.getElementById("lives").innerText = lives;
+  buildBrickField();
+  resetBall();
+  paddle.x = 350;
+}
+
+canvas.addEventListener("click", () => {
+  if (gameOver || gameWon) {
+    resetGame();
+  }
+});
+
+// Primary Render Time Loop ticking tracking structure
+function loop(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  let dt = (timestamp - lastTime) / 1000;
+  if (dt > 0.1) dt = 0.1; // Caps extreme lag latency frame step sizes
+  lastTime = timestamp;
+
+  update(dt);
+  render();
+
+  requestAnimationFrame(loop);
+}
+
+// Trigger Workspace Handshake Sequence Configuration
+loadHighScore();
+buildBrickField();
+resetBall();
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>

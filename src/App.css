@@ -1,0 +1,374 @@
+/* AURA MAZE — BLACK MAGIC / TIME / FAIRY LANDING */
+.landing{position:relative;min-height:100vh;display:grid;grid-template-columns:minmax(360px,.9fr) minmax(520px,1.4fr);overflow:hidden;background:radial-gradient(circle at 76% 42%,rgba(119,67,190,.2),transparent 25%),radial-gradient(circle at 88% 12%,rgba(39,122,101,.12),transparent 24%),radial-gradient(circle at 48% 92%,rgba(16,13,30,.9),transparent 42%),#030305}
+.landing:before{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 14% 22%,rgba(214,161,91,.75) 0 1px,transparent 2px),radial-gradient(circle at 69% 17%,rgba(197,138,255,.7) 0 1px,transparent 2px),radial-gradient(circle at 83% 72%,rgba(120,240,190,.55) 0 1px,transparent 2px),radial-gradient(circle at 58% 78%,rgba(255,255,255,.45) 0 1px,transparent 2px);background-size:190px 170px,260px 230px,310px 280px,220px 250px;opacity:.55;animation:fairy-drift 18s linear infinite}
+.landing-auth{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:70px 7vw;border-right:1px solid rgba(196,145,91,.12);background:radial-gradient(circle at 50% 36%,rgba(82,42,112,.1),transparent 34%),linear-gradient(135deg,rgba(0,0,0,.35),rgba(8,7,12,.88))}
+.auth-inner{width:min(100%,430px)}
+.auth-content{padding:38px;border:1px solid rgba(214,161,91,.17);border-radius:18px;background:linear-gradient(145deg,rgba(16,13,19,.94),rgba(5,5,8,.97));box-shadow:0 30px 80px rgba(0,0,0,.65),inset 0 1px rgba(255,255,255,.035),0 0 60px rgba(104,57,150,.08);backdrop-filter:blur(12px)}
+.eyebrow{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase}
+.auth-content h1{margin:13px 0 10px;font-family:Cinzel,serif;font-size:clamp(32px,4vw,48px);line-height:1.05}
+.auth-content p{margin:0 0 27px;line-height:1.7;font-size:14px}
+.google-button,.auth-submit{width:100%;min-height:50px;border-radius:9px;border:1px solid rgba(214,161,91,.28);font-weight:700;letter-spacing:.07em;transition:transform .2s ease,box-shadow .2s ease,filter .2s ease}
+.google-button{background:rgba(255,255,255,.045)}
+.google-button:hover,.auth-submit:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.google-mark{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;margin-right:9px;border-radius:50%;background:#fff;color:#4285f4;font-weight:800}
+.divider{display:flex;align-items:center;gap:12px;margin:24px 0;color:#5f5a55;font-size:9px;letter-spacing:.18em}
+.divider:before,.divider:after{content:"";height:1px;flex:1;background:rgba(255,255,255,.08)}
+.auth-content form{display:grid;gap:16px}
+.auth-content label{display:grid;gap:8px;color:#817970;font-size:10px;font-weight:700;letter-spacing:.16em}
+.auth-content input{width:100%;height:48px;padding:0 14px;border:1px solid rgba(255,255,255,.09);border-radius:8px;outline:none;background:rgba(0,0,0,.38);transition:border-color .2s ease,box-shadow .2s ease}
+.auth-content input:focus{border-color:rgba(197,138,255,.55);box-shadow:0 0 0 3px rgba(155,92,255,.09),0 0 22px rgba(155,92,255,.1)}
+.auth-submit{margin-top:5px;background:linear-gradient(135deg,#57301c,#9b6331 48%,#442315)}
+.auth-message{margin-top:14px;padding:10px 12px;border:1px solid rgba(214,161,91,.18);border-radius:7px;background:rgba(214,161,91,.05);font-size:12px}
+.auth-switch{display:block;width:100%;margin-top:18px;padding:0;border:0;background:transparent;font-size:12px}
+.auth-bottom{display:flex;justify-content:space-between;gap:15px;margin-top:18px;padding:0 4px;font-size:8px;letter-spacing:.16em}
+.landing-world{position:relative;z-index:1;min-height:100vh;overflow:hidden;padding:42px clamp(30px,5vw,80px) 55px;background:radial-gradient(circle at 50% 43%,rgba(128,65,183,.22),transparent 26%),radial-gradient(circle at 50% 48%,rgba(214,161,91,.06),transparent 38%),linear-gradient(180deg,#08070b,#030305 85%)}
+.world-glow{position:absolute;width:58vw;height:58vw;max-width:780px;max-height:780px;left:50%;top:43%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(171,96,255,.13),rgba(83,42,132,.06) 30%,transparent 67%);filter:blur(10px);animation:portal-breathe 5s ease-in-out infinite}
+.mist{position:absolute;border-radius:50%;filter:blur(35px);opacity:.16;pointer-events:none}.mist-a{width:45%;height:16%;left:4%;top:58%;background:#8c5ac7;transform:rotate(-14deg)}.mist-b{width:48%;height:18%;right:-5%;top:31%;background:#397d6d;transform:rotate(18deg)}
+.world-content{position:relative;z-index:2;max-width:850px;margin:0 auto;height:100%}
+.world-top{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.world-status{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:700;letter-spacing:.18em}.world-status i{width:6px;height:6px;border-radius:50%;animation:pulse-dot 1.8s ease-in-out infinite}
+.portal-scene{position:relative;width:min(58vw,430px);aspect-ratio:1;margin:clamp(30px,5vh,60px) auto 25px;display:grid;place-items:center}
+.portal-outer,.portal-inner{position:absolute;border-radius:50%}.portal-outer{inset:7%;padding:8px;background:conic-gradient(from 0deg,#35204d,#d6a15b,#6e39a0,#24152e,#d6a15b,#35204d);box-shadow:0 0 22px rgba(155,92,255,.5),0 0 65px rgba(155,92,255,.25),inset 0 0 28px rgba(0,0,0,.9);animation:portal-spin 24s linear infinite}.portal-inner{inset:5%;overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle,rgba(206,157,255,.22),transparent 18%),radial-gradient(circle,rgba(106,42,166,.7),transparent 58%),#07030c;border:1px solid rgba(237,207,255,.3);box-shadow:inset 0 0 60px #020103,inset 0 0 110px rgba(155,92,255,.5)}
+.portal-inner:before,.portal-inner:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(214,161,91,.28)}.portal-inner:before{inset:12%;animation:ring-pulse 4s ease-in-out infinite}.portal-inner:after{inset:22%;border-color:rgba(197,138,255,.22);animation:ring-pulse 3s ease-in-out infinite reverse}
+.portal-logo{position:relative;z-index:2;width:34%;max-width:150px;object-fit:contain;filter:drop-shadow(0 0 12px rgba(214,161,91,.8)) drop-shadow(0 0 34px rgba(155,92,255,.9));animation:logo-float 4s ease-in-out infinite}
+.rune{position:absolute;z-index:3;font-size:25px;animation:rune-float 3.5s ease-in-out infinite}.rune-one{top:14%;left:8%}.rune-two{right:5%;top:45%;animation-delay:-1.2s}.rune-three{bottom:12%;left:18%;animation-delay:-2.2s}
+.world-copy{max-width:600px;margin:0 auto 30px;text-align:center}.world-copy h2{margin:0 0 8px;font-family:Cinzel,serif;font-size:clamp(27px,3.3vw,43px)}.world-copy p{margin:0 auto;max-width:500px;font-size:13px;line-height:1.7}
+.free-games{max-width:620px;margin:0 auto;padding:17px;border:1px solid rgba(214,161,91,.12);border-radius:13px;background:rgba(4,3,6,.55);backdrop-filter:blur(10px)}.free-games-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:9px;font-weight:700;letter-spacing:.18em}.free-games-heading small{font-size:8px;letter-spacing:.12em}.free-game-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.free-game{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 11px;border:1px solid rgba(255,255,255,.045);border-radius:7px;background:rgba(255,255,255,.018);transition:transform .18s ease,border-color .18s ease,background .18s ease}.free-game:hover{transform:translateX(3px);border-color:rgba(197,138,255,.28);background:rgba(155,92,255,.055)}.free-game div{min-width:0}.free-game span{display:block;margin-bottom:3px;font-size:7px;letter-spacing:.14em}.free-game strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}.free-game b{flex:0 0 auto;font-size:8px;letter-spacing:.1em}
+.torch{position:absolute;z-index:3;bottom:10%;width:70px;height:150px;opacity:.65;pointer-events:none}.torch-left{left:2%}.torch-right{right:2%;transform:scaleX(-1)}.torch:before{content:"";position:absolute;left:21px;bottom:0;width:28px;height:112px;border-radius:5px;background:linear-gradient(90deg,#24140d,#704122,#24140d);box-shadow:0 0 18px rgba(0,0,0,.9)}.torch i{position:absolute;left:10px;top:2px;width:52px;height:66px;border-radius:50% 50% 48% 48%;background:radial-gradient(circle at 50% 68%,#ffe3a3 0 13%,#d6a15b 25%,#9b5cff 47%,transparent 68%);filter:blur(2px);animation:flame 1.1s ease-in-out infinite alternate}
+@keyframes portal-spin{to{transform:rotate(360deg)}}@keyframes portal-breathe{50%{transform:translate(-50%,-50%) scale(1.08);opacity:.78}}@keyframes ring-pulse{50%{transform:scale(1.08);opacity:.55}}@keyframes logo-float{50%{transform:translateY(-7px) scale(1.03)}}@keyframes rune-float{50%{transform:translateY(-9px) rotate(8deg);opacity:.65}}@keyframes pulse-dot{50%{opacity:.35;transform:scale(.7)}}@keyframes fairy-drift{to{background-position:80px 50px,-90px 80px,100px -70px,-50px 90px}}@keyframes flame{to{transform:scale(.88,1.12) rotate(3deg);opacity:.82}}
+@media(max-width:900px){.landing{grid-template-columns:1fr}.landing-auth{min-height:auto;padding:55px 20px;border-right:0;border-bottom:1px solid rgba(196,145,91,.12)}.landing-world{min-height:auto;padding-top:45px}.portal-scene{width:min(78vw,390px)}}@media(max-width:520px){.auth-content{padding:25px 20px}.free-game-list{grid-template-columns:1fr}.free-games-heading{align-items:flex-start;flex-direction:column;gap:5px}.torch{display:none}}
+/* =========================================================
+   AURA MAZE — BLACK MAGIC FOOTER
+   ========================================================= */
+
+.site-footer {
+  position: relative;
+  width: 100%;
+  padding: 34px 40px 28px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(112, 65, 180, 0.14), transparent 42%),
+    linear-gradient(180deg, #09070c 0%, #030304 100%);
+  border-top: 1px solid rgba(181, 133, 76, 0.22);
+  color: #8d857b;
+  overflow: hidden;
+}
+
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 180px;
+  height: 1px;
+  transform: translateX(-50%);
+  background: #b87333;
+  box-shadow:
+    0 0 12px rgba(184, 115, 51, 0.7),
+    0 0 35px rgba(155, 92, 255, 0.35);
+}
+
+.site-footer::after {
+  content: '✦  ◇  ✧';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(197, 138, 69, 0.35);
+  font-size: 10px;
+  letter-spacing: 12px;
+  pointer-events: none;
+}
+
+.site-footer a {
+  color: #a98a68;
+  transition:
+    color 0.25s ease,
+    text-shadow 0.25s ease;
+}
+
+.site-footer a:hover {
+  color: #d6a15b;
+  text-shadow:
+    0 0 8px rgba(214, 161, 91, 0.45),
+    0 0 18px rgba(155, 92, 255, 0.25);
+}
+
+.site-footer p,
+.site-footer span {
+  color: #716a62;
+}
+
+@media (max-width: 700px) {
+  .site-footer {
+    padding: 28px 20px 24px;
+    text-align: center;
+  }
+}
+/* =========================================================
+   PRICING — ENCHANTED DETAILS
+   ========================================================= */
+
+.pricing-magic {
+  isolation: isolate;
+}
+
+.pricing-magic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 18%,
+      rgba(191, 126, 255, .12) 0,
+      transparent 18%),
+    radial-gradient(circle at 50% 18%,
+      transparent 0,
+      transparent 34%,
+      rgba(155, 92, 255, .05) 34.2%,
+      transparent 34.5%);
+}
+
+/* Enchanted circular time rings */
+
+.pricing-magic::after {
+  content: "✦    ◇    ✧    ◇    ✦";
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  z-index: 1;
+  width: 520px;
+  height: 520px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  border: 1px solid rgba(155, 92, 255, .08);
+  border-radius: 50%;
+  color: rgba(197, 138, 255, .28);
+  font-size: 11px;
+  letter-spacing: 14px;
+  box-shadow:
+    0 0 80px rgba(155, 92, 255, .06),
+    inset 0 0 80px rgba(155, 92, 255, .025);
+  pointer-events: none;
+}
+
+/* Header */
+
+.pricing-magic__header {
+  position: relative;
+}
+
+.pricing-magic__header::before,
+.pricing-magic__header::after {
+  content: "✧";
+  position: absolute;
+  top: 42px;
+  color: rgba(214, 161, 91, .55);
+  font-size: 22px;
+  text-shadow: 0 0 15px rgba(214, 161, 91, .5);
+}
+
+.pricing-magic__header::before {
+  left: -15px;
+}
+
+.pricing-magic__header::after {
+  right: -15px;
+}
+
+/* Fairy particles */
+
+.pricing-magic__stars::before {
+  content: "✦";
+  position: absolute;
+  top: 16%;
+  left: 9%;
+  color: #c58aff;
+  font-size: 15px;
+  text-shadow:
+    0 0 8px #c58aff,
+    0 0 20px rgba(155,92,255,.7);
+  animation: pricing-fairy-float 4s ease-in-out infinite;
+}
+
+.pricing-magic__stars::after {
+  content: "✧";
+  position: absolute;
+  right: 10%;
+  top: 28%;
+  color: #d6a15b;
+  font-size: 13px;
+  text-shadow:
+    0 0 8px #d6a15b,
+    0 0 20px rgba(214,161,91,.6);
+  animation: pricing-fairy-float 5s ease-in-out infinite reverse;
+}
+
+@keyframes pricing-fairy-float {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: .35;
+  }
+
+  50% {
+    transform: translate3d(8px, -15px, 0);
+    opacity: 1;
+  }
+}
+
+/* Card magical corners */
+
+.pricing-card::before {
+  content: "✦";
+  position: absolute;
+  top: 12px;
+  left: 14px;
+  color: rgba(214,161,91,.25);
+  font-size: 10px;
+}
+
+.pricing-card::after {
+  content: "✧";
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  color: rgba(155,92,255,.25);
+  font-size: 10px;
+}
+
+.pricing-card--featured::before,
+.pricing-card--featured::after {
+  color: rgba(197,138,255,.65);
+}
+
+/* Featured magical glow */
+
+.pricing-card--featured {
+  position: relative;
+}
+
+.pricing-card--featured .pricing-card__inner::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 58px;
+  width: 180px;
+  height: 180px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(155,92,255,.08);
+  border-radius: 50%;
+  box-shadow:
+    0 0 45px rgba(155,92,255,.07),
+    inset 0 0 45px rgba(155,92,255,.05);
+  pointer-events: none;
+}
+
+/* Premium gold aura */
+
+.pricing-card--premium {
+  box-shadow:
+    0 25px 70px rgba(0,0,0,.55),
+    0 0 40px rgba(214,161,91,.06),
+    inset 0 1px 0 rgba(255,220,170,.08);
+}
+
+/* Price magical glow */
+
+.pricing-card--featured .pricing-card__price strong {
+  text-shadow:
+    0 0 15px rgba(155,92,255,.4),
+    0 0 30px rgba(155,92,255,.16);
+}
+
+.pricing-card--premium .pricing-card__price strong {
+  text-shadow:
+    0 0 15px rgba(214,161,91,.3),
+    0 0 30px rgba(214,161,91,.1);
+}
+
+/* Buttons */
+
+.pricing-card__button {
+  position: relative;
+  overflow: hidden;
+}
+
+.pricing-card__button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.18),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: left .7s ease;
+}
+
+.pricing-card__button:hover:not(:disabled)::before {
+  left: 140%;
+}
+
+/* Bottom seal */
+
+.pricing-magic__footer {
+  position: relative;
+  padding-top: 24px;
+}
+
+.pricing-magic__footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(500px, 80%);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(184,115,51,.35),
+    rgba(155,92,255,.45),
+    rgba(184,115,51,.35),
+    transparent
+  );
+  box-shadow: 0 0 12px rgba(155,92,255,.15);
+}
+
+/* Mobile */
+
+@media (max-width: 620px) {
+  .pricing-magic::after {
+    width: 310px;
+    height: 310px;
+    top: 70px;
+  }
+
+  .pricing-magic__header::before {
+    left: 2px;
+  }
+
+  .pricing-magic__header::after {
+    right: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pricing-magic__stars::before,
+  .pricing-magic__stars::after {
+    animation: none;
+  }
+
+  .pricing-card,
+  .pricing-card__button {
+    transition: none;
+  }
+}

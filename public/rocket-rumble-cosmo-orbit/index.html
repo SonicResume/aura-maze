@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rocket Flight Core | Arcade</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #050515; font-family: monospace; }
+    #canvas-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; }
+    canvas { background: #02020a; box-shadow: 0 0 40px rgba(245, 158, 11, 0.08); }
+    
+    /* HUD Parameters */
+    #hud { position: absolute; top: 20px; left: 20px; right: 20px; color: #ffffff; font-size: 15px; pointer-events: none; letter-spacing: 2px; display: flex; justify-content: space-between; }
+    .amber-text { color: #f59e0b; font-weight: bold; }
+    
+    /* Fuel Bar Overlay Container */
+    #fuel-wrapper { width: 140px; height: 14px; background: #1e1e2f; border: 1px solid #334155; border-radius: 4px; overflow: hidden; display: inline-block; vertical-align: middle; }
+    #fuel-bar { width: 100%; height: 100%; background: #10b981; transition: width 0.1s linear, background-color 0.3s; }
+    
+    /* Screen Modals Setup */
+    .screen-overlay { position: absolute; inset: 0; background: rgba(5, 5, 21, 0.96); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px; color: white; z-index: 50; }
+    #game-over-screen { display: none; background: rgba(5, 5, 21, 0.88); }
+    
+    input[type="text"] { padding: 12px; width: 260px; background: #0c0c1e; border: 1px solid #334155; border-radius: 8px; color: white; text-align: center; font-size: 14px; font-family: monospace; outline: none; transition: border-color 0.2s; }
+    input[type="text"]:focus { border-color: #f59e0b; }
+    
+    .btn-arcade { padding: 12px 24px; background: #f59e0b; border: none; border-radius: 8px; color: #050515; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 14px; transition: background 0.2s, transform 0.1s; font-family: monospace; }
+    .btn-arcade:hover { background: #fbbf24; }
+    .btn-arcade:active { transform: scale(0.96); }
+  </style>
+</head>
+<body>
+
+  <div id="canvas-container">
+    <!-- Game HUD -->
+    <div id="hud">
+      <div>PILOT: <span id="hud-name" class="amber-text">---</span></div>
+      <div>
+        FUEL: 
+        <div id="fuel-wrapper">
+          <div id="fuel-bar"></div>
+        </div>
+      </div>
+      <div>TIME: <span id="hud-timer" class="amber-text">0</span>s</div>
+      <div>SCORE: <span id="hud-score" class="amber-text">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- 🎫 PILOT INITIAL REGISTRATION OVERLAY -->
+    <div id="auth-screen" class="screen-overlay">
+      <h2 style="color: #ffffff; font-size: 24px; letter-spacing: 4px; text-transform: uppercase;">Launch Code Authorization</h2>
+      <p style="color: #475569; font-size: 11px; margin-bottom: 5px;">ENTER REGISTRATION ID TO BOOT THRUSTERS</p>
+      <input type="text" id="username-input" placeholder="PILOT_ID" maxlength="12" autocomplete="off">
+      <button class="btn-arcade" onclick="registerAndLaunchRocket()">Engage Core</button>
+    </div>
+
+    <!-- 🏁 GAME OVER MODAL SCREEN FRAME -->
+    <div id="game-over-screen" class="screen-overlay">
+      <h2 id="game-over-title" style="font-size: 32px; letter-spacing: 4px; color: #ef4444;">SHIP DESTROYED</h2>
+      <p style="font-size: 15px;">PILOT CALLSIGN: <span id="final-name" class="amber-text">---</span></p>
+      <p style="font-size: 15px;">FLIGHT SPEED TIME: <span id="final-time" class="amber-text">0</span> SECONDS</p>
+      <p style="font-size: 15px;">FINAL COMPILED SCORE: <span id="final-score" class="amber-text">0</span></p>
+      <button class="btn-arcade" onclick="resetGameEngine()">Restart Console</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

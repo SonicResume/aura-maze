@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Stunt Rider: Infinite Rings 🔥</title>
+  <style>
+    body {
+      margin: 0; background: #0a0b10; color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100vh; overflow: hidden; position: relative;
+    }
+    #hud { width: 800px; max-width: 95vw; display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 22px; font-weight: bold; }
+    #score-val { color: #4ade80; } #time-val { color: #f87171; }
+    #game-container { position: relative; }
+    canvas { border: 4px solid #1e293b; background: linear-gradient(to bottom, #0f172a, #1e1b4b); border-radius: 8px; max-width: 95vw; max-height: 65vh; }
+    #gas-button {
+      position: absolute; bottom: 25px; right: 25px; width: 90px; height: 90px; background: #ef4444;
+      border: 4px solid #fca5a5; border-radius: 50%; color: #fff; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; user-select: none; touch-action: none;
+    }
+    #gas-button:active { background: #b91c1c; transform: scale(0.95); }
+    #back-btn { position: absolute; top: 15px; left: 15px; color: #fff; text-decoration: none; font-weight: bold; background: #334155; padding: 8px 14px; border-radius: 8px; font-size: 14px; z-index: 1000; }
+  </style>
+</head>
+<body>
+  <a id="back-btn" href="../index.html">⬅️ Menu</a>
+  <div id="hud">
+    <div>POINTS: <span id="score-val">0</span></div>
+    <div>⏱️ TIME: <span id="time-val">45</span>s</div>
+  </div>
+  <div id="game-container">
+    <canvas id="stuntCanvas" width="800" height="500"></canvas>
+    <div id="gas-button">GAS</div>
+  </div>
+  <script>
+    const canvas = document.getElementById("stuntCanvas"); const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score-val"); const timeEl = document.getElementById("time-val"); const gasBtn = document.getElementById("gas-button");
+    let score, timeLeft, gameOver, lastTime, timerAccumulator, keys, rings, lastSpawnedX, particles;
+    const terrain = { amplitude: 110, frequency: 0.007, baseY: 380, getHeight: function(x) { return this.baseY + Math.sin(x * this.frequency) * this.amplitude; } };
+    const bike = { x: 100, y: 0, vx: 5, vy: 0, radius: 12, gravity: 0.22, onGround: false, rotation: 0 };
+    
+    function resetGameEngine() {
+      score = 0; timeLeft = 45; gameOver = false; lastTime = 0; timerAccumulator = 0; keys = { space: false };
+      rings = []; lastSpawnedX = 400; particles = [];
+      bike.x = 100; bike.vx = 5; bike.vy = 0; bike.rotation = 0;
+      bike.y = terrain.getHeight(bike.x) - bike.radius;
+      scoreEl.textContent = score; timeEl.textContent = timeLeft;
+    }
+    
+    window.addEventListener("keydown", (e) => { if(e.code === "Space") keys["space"] = true; });
+    window.addEventListener("keyup", (e) => { if(e.code === "Space") keys["space"] = false; });
+    gasBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); keys["space"] = true; });
+    window.addEventListener("pointerup", () => { keys["space"] = false; });
+    window.addEventListener("pointercancel", () => { keys["space"] = false; });
+
+    function proceduralSpawn(cameraX) {
+      while (lastSpawnedX < cameraX + canvas.width + 500) {
+        lastSpawnedX += 340; let groundY = terrain.getHeight(lastSpawnedX);
+        rings.push({ x: lastSpawnedX + 60, y: groundY - 140 - Math.random() * 70, radius: 36, isFire: Math.random() < 0.5, collected: false, pulse: Math.random() * Math.PI });
+      }
+      for (let i = rings.length - 1; i >= 0; i--) { if (rings[i].x < cameraX - 200) rings.splice(i, 1); }
+    }
+    function createSparks(x, y, isFire) {
+      const count = isFire ? 14 : 7; const color = isFire ? "#ff4500" : "#fbbf24";
+      for (let i = 0; i < count; i++) { particles.push({ x: x, y: y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7, radius: Math.random() * 3 + 1, alpha: 1, color: color }); }
+    }
+    
+    let autoResetTimer = 3;
+    function update(currentTime) {
+      if (lastTime === 0) lastTime = currentTime; let deltaTime = currentTime - lastTime; lastTime = currentTime;
+      if (gameOver) {
+        ctx.fillStyle = "rgba(10, 11, 16, 0.9)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#fbbf24"; ctx.font = "bold 40px sans-serif"; ctx.textAlign = "center"; ctx.fillText("TIME'S UP!", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.font = "24px sans-serif"; ctx.fillStyle = "#ffffff"; ctx.fillText(`Score: ${score} Points`, canvas.width / 2, canvas.height / 2 + 20);
+        ctx.font = "18px sans-serif"; ctx.fillStyle = "#64748b"; ctx.fillText(`Restarting match in ${Math.ceil(autoResetTimer)}s...`, canvas.width / 2, canvas.height / 2 + 70);
+        autoResetTimer -= deltaTime / 1000;
+        if (autoResetTimer <= 0) { autoResetTimer = 3; resetGameEngine(); }
+        requestAnimationFrame(update); return;
+      }
+      requestAnimationFrame(update); timerAccumulator += deltaTime;
+      if (timerAccumulator >= 1000) { timeLeft--; timeEl.textContent = timeLeft; timerAccumulator -= 1000; if (timeLeft <= 0) gameOver = true; }
+      if (keys["space"]) { bike.vx += 0.22; if (bike.vx > 16.0) bike.vx = 16.0; } else { bike.vx -= 0.05; if (bike.vx < 4.0) bike.vx = 4.0; }
+      bike.vy += bike.gravity; bike.x += bike.vx; bike.y += bike.vy; let currentGroundY = terrain.getHeight(bike.x);
+      if (bike.y >= currentGroundY - bike.radius) { bike.y = currentGroundY - bike.radius; let nextGroundY = terrain.getHeight(bike.x + 5); let slopeAngle = Math.atan2(nextGroundY - currentGroundY, 5); if (!bike.onGround && bike.vy > 1) createSparks(bike.x, bike.y + bike.radius, false); bike.vy = Math.sin(slopeAngle) * bike.vx; bike.onGround = true; bike.rotation = slopeAngle; }
+      else { bike.onGround = false; bike.rotation += 0.02; if (bike.rotation > 0.4) bike.rotation = 0.4; }
+      let cameraX = bike.x - 150; proceduralSpawn(cameraX); ctx.clearRect(0, 0, canvas.width, canvas.height);
+      rings.forEach(r => { r.pulse += 0.06; let scalePulse = Math.sin(r.pulse) * 3; if (!r.collected) { ctx.save(); ctx.translate(r.x - cameraX, r.y); ctx.beginPath(); ctx.arc(0, 0, r.radius + scalePulse, 0, Math.PI * 2); ctx.lineWidth = r.isFire ? 8 : 5; ctx.strokeStyle = r.isFire ? "#ea580c" : "#38bdf8"; ctx.stroke(); ctx.restore(); if (Math.hypot(bike.x - r.x, bike.y - r.y) < r.radius + bike.radius) { r.collected = true; timeLeft += 3; timeEl.textContent = timeLeft; score += r.isFire ? 200 : 100; scoreEl.textContent = score; createSparks(r.x, r.y, r.isFire); } } });
+      ctx.save(); ctx.translate(bike.x - cameraX, bike.y); ctx.rotate(bike.rotation); ctx.fillStyle = "#ef4444"; ctx.fillRect(-18, -12, 32, 8); ctx.fillStyle = "#1e293b"; ctx.fillRect(-10, -4, 18, 10); ctx.lineWidth = 3; ctx.strokeStyle = "#94a3b8"; ctx.beginPath(); ctx.moveTo(6, -10); ctx.lineTo(14, -22); ctx.stroke(); ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.arc(-18, 4, 11, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(16, 4, 11, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+      ctx.fillStyle = "#1e293b"; ctx.beginPath(); ctx.moveTo(0, canvas.height); for (let i = 0; i <= canvas.width; i += 5) { ctx.lineTo(i, terrain.getHeight(cameraX + i)); } ctx.lineTo(canvas.width, canvas.height); ctx.fill();
+      for (let i = particles.length - 1; i >= 0; i--) { let p = particles[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.03; if (p.alpha <= 0) { particles.splice(i, 1); continue; } ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x - cameraX, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+    }
+    resetGameEngine();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>

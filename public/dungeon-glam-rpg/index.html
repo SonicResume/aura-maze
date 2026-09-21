@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>NOAH Dungeon Glam RPG</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: radial-gradient(circle at top, #1e1b4b, #0f051d);
+  color: white;
+  user-select: none;
+}
+
+#nav-container {
+  margin-bottom: 20px;
+  w-full: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.back-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: white;
+  color: #0f051d;
+  transform: translateY(-2px);
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(247, 37, 133, 0.4);
+}
+
+#hud {
+  margin-bottom: 25px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #a5b4fc;
+}
+
+#game {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.4);
+  padding: 30px;
+  border-radius: 32px;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+#enemy-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+#enemy {
+  width: 200px;
+  height: 200px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f72585, #4c0519);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 75px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  transition: transform 0.1s ease;
+}
+
+.enemy-damaged {
+  transform: scale(0.92);
+  animation: shake 0.15s ease infinite;
+}
+
+.bar {
+  width: 200px;
+  height: 14px;
+  background: #1e1b4b;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.hp {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #ef4444, #f43f5e);
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#board {
+  display: grid;
+  grid-template-columns: repeat(6, 60px);
+  gap: 8px;
+}
+
+.tile {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s ease;
+  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2), 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.tile:hover {
+  transform: scale(1.04);
+}
+
+.selected {
+  outline: 3px solid white;
+  outline-offset: -3px;
+  transform: scale(1.08) !important;
+  box-shadow: 0 0 20px rgba(255,255,255,0.6);
+}
+
+@keyframes shake {
+  0% { transform: translate(2px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  30% { transform: translate(0px, 2px) rotate(0deg); }
+  50% { transform: translate(1px, -1px) rotate(1deg); }
+  70% { transform: translate(-2px, 1px) rotate(-1deg); }
+  100% { transform: translate(1px, -2px) rotate(0deg); }
+}
+</style>
+</head>
+
+<body>
+
+<div id="nav-container">
+  <!-- 🔗 CRITICAL RELATIVE LINK DIRECTLY GOING BACK TO MAIN ENTRY PORTAL -->
+  <a href="../index.html" class="back-btn">&larr; Return to Arcade</a>
+</div>
+
+<h1>💄 NOAH: Dungeon Glam RPG 🐉</h1>
+
+<div id="hud">
+  Dungeon Level: <span id="level">1</span> | 
+  Glam Score: <span id="score">0</span> | 
+  High Score: <span id="high-score">0</span>
+</div>
+
+<div id="game">
+  <div id="enemy-container">
+    <div id="enemy">🐉</div>
+    <div class="bar">
+      <div class="hp" id="hp"></div>
+    </div>
+  </div>
+  <div id="board"></div>
+</div>
+
+<script>
+const colors = ["#ff4d6d","#4cc9f0","#f72585","#b5179e","#7209b7","#fca311"];
+const size = 36;
+const cols = 6;
+
+let grid = [];
+let selected = null;
+let isAnimating = false;
+
+let score = 0;
+let level = 1;
+let enemyHP = 100;
+let highScore = 0;
+
+function rand() {
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+// Loads score parameters from local memory storage layout
+function loadHighScore() {
+  const savedScore = localStorage.getItem("noah_glam_high_score");
+  if (savedScore) {
+    highScore = parseInt(savedScore, 10);
+  } else {
+    highScore = 0;
+  }
+  document.getElementById("high-score").innerText = highScore;
+}
+
+function updateHighScore() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem("noah_glam_high_score", highScore.toString());
+    document.getElementById("high-score").innerText = highScore;
+  }
+}
+
+function init() {
+  loadHighScore();
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  grid = [];
+
+  for (let i = 0; i < size; i++) {
+    let tileColor;
+    do {
+      tileColor = rand();
+      grid[i] = tileColor;
+    } while (checkImmediateMatchAt(i));
+
+    const d = document.createElement("div");
+    d.className = "tile";
+    d.onclick = () => click(i);
+    board.appendChild(d);
+  }
+
+  render();
+  updateHP();
+}
+
+function checkImmediateMatchAt(i) {
+  let r = Math.floor(i / cols);
+  let c = i % cols;
+  if (c >= 2 && grid[i] === grid[i-1] && grid[i] === grid[i-2]) return true;
+  if (r >= 2 && grid[i] === grid[i-6] && grid[i] === grid[i-12]) return true;
+  return false;
+}
+
+async function click(i) {
+  if (isAnimating) return;
+
+  if (selected === null) {
+    selected = i;
+    render();
+    return;
+  }
+
+  const firstIndex = selected;
+  const secondIndex = i;
+  selected = null;
+
+  if (!isAdjacent(firstIndex, secondIndex)) {
+    selected = secondIndex;
+    render();
+    return;
+  }
+
+  isAnimating = true;
+  swap(firstIndex, secondIndex);
+  render();
+
+  if (hasMatches()) {
+    await processMatchChain();
+  } else {
+    swap(firstIndex, secondIndex);
+    render();
+  }
+  isAnimating = false;
+}
+
+function isAdjacent(a, b) {
+  const r1 = Math.floor(a / cols), c1 = a % cols;
+  const r2 = Math.floor(b / cols), c2 = b % cols;
+  return (Math.abs(r1 - r2) + Math.abs(c1 - c2)) === 1;
+}
+
+function swap(a, b) {
+  [grid[a], grid[b]] = [grid[b], grid[a]];
+}
+
+function hasMatches() {
+  for (let i = 0; i < size; i++) {
+    let r = Math.floor(i / cols);
+    let c = i % cols;
+    if (c <= 3 && grid[i] && grid[i] === grid[i+1] && grid[i] === grid[i+2]) return true;
+    if (r <= 3 && grid[i] && grid[i] === grid[i+6] && grid[i] === grid[i+12]) return true;
+  }
+  return false;
+}
+
+async function processMatchChain() {
+  while (hasMatches()) {
+    let matchIndices = findMatchIndices();
+    
+    damage(matchIndices.size);
+    enemyHP = Math.max(0, enemyHP - (matchIndices.size * 5));
+    updateHP();
+    triggerDamageFlash();
+
+    matchIndices.forEach(i => grid[i] = null);
+    render();
+    await sleep(200);
+
+    collapse();
+    render();
+    await sleep(200);
+
+    refill();
+    render();
+    await sleep(200);
+
+    if (enemyHP <= 0) {
+      nextLevel();
+      break;
+    }
+  }
+}
+
+function findMatchIndices() {
+  const matched = new Set();
+  for (let i = 0; i < size; i++) {
+    let r = Math.floor(i / cols);
+    let c = i % cols;
+    if (c <= 3 && grid[i] && grid[i] === grid[i+1] && grid[i] === grid[i+2]) {
+      matched.add(i).add(i+1).add(i+2);
+    }
+    if (r <= 3 && grid[i] && grid[i] === grid[i+6] && grid[i] === grid[i+12]) {
+      matched.add(i).add(i+6).add(i+12);
+    }
+  }
+  return matched;
+}
+
+function collapse() {
+  for (let c = 0; c < cols; c++) {
+    for (let r = 5; r >= 0; r--) {
+      let i = r * cols + c;
+      if (grid[i] === null) {
+        for (let k = r - 1; k >= 0; k--) {
+          let up = k * cols + c;
+          if (grid[up] !== null) {
+            grid[i] = grid[up];
+            grid[up] = null;
+            break;
+          }
+        }
+      }
+    }
+  }
+}
+
+function refill() {
+  for (let i = 0; i < size; i++) {
+    if (grid[i] === null) grid[i] = rand();
+  }
+}
+
+function render() {
+  const tiles = document.querySelectorAll(".tile");
+  tiles.forEach((t, i) => {
+    t.style.background = grid[i] || "transparent";
+    t.className = "tile";
+    if (grid[i] === null) t.style.opacity = "0";
+    else t.style.opacity = "1";
+
+    if (i === selected) {
+      t.classList.add("selected");
+    }
+  });
+}
+
+function damage(matchCount) {
+  score += matchCount * 25;
+  document.getElementById("score").innerText = score;
+  updateHighScore();
+}
+
+function updateHP() {
+  document.getElementById("hp").style.width = enemyHP + "%";
+}
+
+function triggerDamageFlash() {
+  const enemy = document.getElementById("enemy");
+  enemy.classList.add("enemy-damaged");
+  setTimeout(() => enemy.classList.remove("enemy-damaged"), 250);
+}
+
+function nextLevel() {
+  level++;
+  enemyHP = 100;
+  document.getElementById("level").innerText = level;
+  document.getElementById("enemy").style.transform = "scale(1.2)";
+  setTimeout(() => {
+    document.getElementById("enemy").style.transform = "scale(1)";
+    init();
+  }, 300);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+init();
+</script>
+
+</body>
+</html>

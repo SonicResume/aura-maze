@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aura Snake Cyber Arena | Arcade</title>
+  <style>
+    /* =========================================================================
+       🎨 NOAH WORKSPACE BRAND DESIGN ALIGNMENT
+       ========================================================================= */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #06142E; font-family: monospace; }
+    
+    #canvas-container { 
+      width: 100%; 
+      height: 100%; 
+      display: flex; 
+      flex-direction: column;
+      justify-content: center; 
+      align-items: center; 
+      position: relative; 
+      padding: 20px;
+    }
+    
+    /* HUD Layout Parameters */
+    #ui {
+      font-size: 16px;
+      margin-bottom: 15px;
+      font-weight: bold;
+      display: flex;
+      gap: 30px;
+      letter-spacing: 2px;
+      color: #cbd5e1;
+      pointer-events: none;
+    }
+    
+    .gold-text { color: #d4af37; text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+    .timer-text { color: #ef4444; }
+
+    canvas { 
+      background: #030712; 
+      box-shadow: 0 0 40px rgba(212, 175, 55, 0.05); 
+      border: 4px solid #0a1f44;
+      border-radius: 12px;
+    }
+
+    /* 🎮 GAME OVER SCREEN OVERLAY MODAL */
+    .screen-overlay { 
+      position: absolute; 
+      inset: 0; 
+      background: rgba(6, 20, 46, 0.95); 
+      display: none; 
+      flex-direction: column; 
+      justify-content: center; 
+      align-items: center; 
+      gap: 20px; 
+      color: white; 
+      z-index: 50; 
+    }
+    
+    .btn-arcade { 
+      padding: 12px 24px; 
+      background: #d4af37 !important; 
+      color: #ffffff !important; 
+      border: none; 
+      border-radius: 8px; 
+      font-weight: 900; 
+      cursor: pointer; 
+      text-transform: uppercase; 
+      font-size: 14px; 
+      transition: background 0.2s, transform 0.1s; 
+      font-family: monospace; 
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+    }
+    .btn-arcade:hover { background: #fbbf24 !important; }
+    .btn-arcade:active { transform: scale(0.95); }
+  </style>
+</head>
+<body>
+
+  <div id="canvas-container">
+    <!-- Game HUD -->
+    <div id="ui">
+      <div>TIME SURVIVED: <span id="hud-timer" class="timer-text">0</span>s</div>
+      <div>CORE SEGMENTS: <span id="hud-score" class="gold-text">1</span></div>
+      <div>HIGH SCORE: <span id="hud-high" class="gold-text">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+    <!-- 🏁 GAME OVER OVERLAY SCREEN MATRIX -->
+    <div id="game-over-screen" class="screen-overlay">
+      <h2 id="game-over-title" style="font-size: 32px; letter-spacing: 4px; color: #ef4444;">CORE SEGMENT COLLISION</h2>
+      <p style="font-size: 16px;">TIME SURVIVED: <span id="final-time" class="timer-text">0</span> SECONDS</p>
+      <p style="font-size: 16px;">FINAL SEGMENT LEN: <span id="final-score" class="gold-text">0</span></p>
+      <p style="font-size: 16px;">BEST RECORD ARCHIVE: <span id="final-high" class="gold-text">0</span></p>
+      <button class="btn-arcade" onclick="resetGameEngine()">Restart Console</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Interface DOM Hook Registers
+    const hudTimer = document.getElementById("hud-timer");
+    const hudScore = document.getElementById("hud-score");
+    const hudHigh = document.getElementById("hud-high");
+    const gameOverScreen = document.getElementById("game-over-screen");
+    const gameOverTitle = document.getElementById("game-over-title");
+    const finalTime = document.getElementById("final-time");
+    const finalScore = document.getElementById("final-score");
+    const finalHigh = document.getElementById("final-high");
+
+    // Grid Scaling Configuration
+    const gridCellSize = 20;
+    const tileCount = canvas.width / gridCellSize;
+
+    // Core Engine Registers
+    let score = 1;
+    let secondsSurvived = 0;
+    let highScore = parseInt(localStorage.getItem("snake_high_score")) || 0;
+    let isGameOver = false;
+    let matchIntervalTracker = null;
+    let gameLoopTimeoutTracker = null;
+
+    // Movement Vectors Configuration
+    let snakeBody = [];
+    let dx = gridCellSize;
+    let dy = 0;
+    let changingDirection = false;
+
+    // Food Target Nodes
+    let foodNode = { x: 0, y: 0 };
+
+    // Initialize High Score Viewport Element on Boot
+    hudHigh.textContent = highScore;
+
+    function relocateFoodNode() {
+      foodNode.x = Math.floor(Math.random() * tileCount) * gridCellSize;
+      foodNode.y = Math.floor(Math.random() * tileCount) * gridCellSize;
+      
+      // Ensure food doesn't spawn inside snake body parameters
+      snakeBody.forEach(part => {
+        if (part.x === foodNode.x && part.y === foodNode.y) {
+          relocateFoodNode();
+        }
+      });
+    }
+
+    // Direction control assignments
+    window.addEventListener("keydown", (e) => {
+      if (changingDirection) return;
+      
+      const key = e.key.toLowerCase();
+      const goingUp = dy === -gridCellSize;
+      const goingDown = dy === gridCellSize;
+      const goingRight = dx === gridCellSize;
+      const goingLeft = dx === -gridCellSize;
+
+      if ((key === "a" || e.key === "ArrowLeft") && !goingRight) { dx = -gridCellSize; dy = 0; changingDirection = true; }
+      if ((key === "d" || e.key === "ArrowRight") && !goingLeft) { dx = gridCellSize; dy = 0; changingDirection = true; }
+      if ((key === "w" || e.key === "ArrowUp") && !goingDown) { dx = 0; dy = -gridCellSize; changingDirection = true; }
+      if ((key === "s" || e.key === "ArrowDown") && !goingUp) { dx = 0; dy = gridCellSize; changingDirection = true; }
+    });
+
+    // ⏱️ TIMER SYSTEM ENGINE UP-COUNTER WORKER
+    function startMatchTimer() {
+      if (matchIntervalTracker) clearInterval(matchIntervalTracker);
+      matchIntervalTracker = setInterval(() => {
+        if (!isGameOver) {
+          secondsSurvived++;
+          hudTimer.textContent = secondsSurvived;
+        }
+      }, 1000);
+    }
+
+    // Main Processing Rendering Loop
+    function renderPipeline() {
+      if (isGameOver) return;
+
+      // Frame execution speed logic controller (100ms ticks)
+      gameLoopTimeoutTracker = setTimeout(() => {
+        changingDirection = false;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Move Snake Head
+        const snakeHead = { x: snakeBody[0].x + dx, y: snakeBody[0].y + dy };
+        snakeBody.unshift(snakeHead);
+
+        // Check if head collides with food node target array
+        const hasEatenFood = snakeBody[0].x === foodNode.x && snakeBody[0].y === foodNode.y;
+        if (hasEatenFood) {
+          score++;
+          hudScore.textContent = score;
+          relocateFoodNode();
+        } else {
+          snakeBody.pop(); // Remove tail segment to preserve length if food wasn't processed
+        }
+
+        // 🎯 FAIL CONDITION CHECKS (Wall Collision or Self Eat)
+        const hitLeftWall = snakeBody[0].x < 0;
+        const hitRightWall = snakeBody[0].x >= canvas.width;
+        const hitTopWall = snakeBody[0].y < 0;
+        const hitBottomWall = snakeBody[0].y >= canvas.height;
+
+        if (hitLeftWall || hitRightWall || hitTopWall || hitBottomWall) {
+          triggerTerminationSequence();
+          return;
+        }
+
+        for (let i = 4; i < snakeBody.length; i++) {
+          if (snakeBody[i].x === snakeBody[0].x && snakeBody[i].y === snakeBody[0].y) {
+            triggerTerminationSequence();
+            return;
+          }
+        }
+
+        // 🟢 DRAW GLOWING DATA SEED FOOD NODE
+        ctx.beginPath();
+        ctx.rect(foodNode.x + 2, foodNode.y + 2, gridCellSize - 4, gridCellSize - 4);
+        ctx.fillStyle = "#d4af37";
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "#d4af37";
+        ctx.fill();
+        ctx.shadowBlur = 0; // Clear aura immediately
+
+        // 🔵 DRAW CYBER SNAKE DATA SEGMENTS
+        snakeBody.forEach((part, index) => {
+          ctx.beginPath();
+          ctx.rect(part.x + 1, part.y + 1, gridCellSize - 2, gridCellSize - 2);
+          
+          // Style snake head differently than body vectors
+          if (index === 0) {
+            ctx.fillStyle = "#ffffff";
+            ctx.strokeStyle = "#38bdf8";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = "#38bdf8";
+          }
+          ctx.fill();
+        });
+
+        renderPipeline();
+      }, 90);
+    }
+
+    // 🏁 TERMINATION DISPATCHER MATRIX
+    function triggerTerminationSequence() {
+      isGameOver = true;
+      clearTimeout(gameLoopTimeoutTracker);
+      clearInterval(matchIntervalTracker);
+
+      // Save records inside LocalStorage permanent arrays
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem("snake_high_score", highScore);
+        hudHigh.textContent = highScore;
+      }
+
+      finalTime.textContent = secondsSurvived;
+      finalScore.textContent = score;
+      finalHigh.textContent = highScore;
+      gameOverScreen.style.display = "flex";
+    }
+
+    // 🔄 SYSTEM RESTART CONTROLLER ENGINE
+    function resetGameEngine() {
+      score = 1;
+      secondsSurvived = 0;
+      isGameOver = false;
+      dx = gridCellSize;
+      dy = 0;
+      changingDirection = false;
+
+            // Re-provision start coordinates matrix
+      snakeBody = [
+        { x: gridCellSize * 5, y: gridCellSize * 10 },
+        { x: gridCellSize * 4, y: gridCellSize * 10 },
+        { x: gridCellSize * 3, y: gridCellSize * 10 }
+      ];
+
+      hudScore.textContent = "1";
+      hudTimer.textContent = "0";
+      gameOverScreen.style.display = "none";
+
+      relocateFoodNode();
+      startMatchTimer();
+      renderPipeline();
+    }
+
+    // Initial Engine Startup Activation Callers
+    resetGameEngine();
+  </script>
+</body>
+</html>
+

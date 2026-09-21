@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Neon Pop Frenzy</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    font-family: monospace;
+    background: radial-gradient(circle, #050816, #000);
+    touch-action: none;
+}
+
+/* CANVAS */
+canvas {
+    display: block;
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #00ffd5;
+    font-size: 14px;
+    z-index: 5;
+    text-shadow: 0 0 10px #00ffd5;
+}
+
+/* TOP NAV */
+#nav {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    z-index: 6;
+}
+
+#nav button {
+    border: none;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #00ffd5;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* MENU */
+#menu {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 10;
+    color: white;
+}
+
+#menu button {
+    padding: 14px 22px;
+    border: none;
+    border-radius: 12px;
+    background: #00ffd5;
+    font-weight: bold;
+    width: 200px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="hud">Neon Pop Frenzy | Score: 0</div>
+
+<div id="nav">
+    <button onclick="goHome()">🏠</button>
+    <button onclick="togglePause()">⏸</button>
+    <button onclick="restart()">🔁</button>
+</div>
+
+<div id="menu">
+    <h1>🌈 Neon Pop Frenzy</h1>
+    <button onclick="startGame('rush')">⏱ 60s Rush</button>
+    <button onclick="startGame('endless')">♾ Endless Mode</button>
+</div>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const hud = document.getElementById("hud");
+const menu = document.getElementById("menu");
+
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+window.onresize = () => {
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+};
+
+let bubbles = [];
+let score = 0;
+let running = false;
+let paused = false;
+let mode = "endless";
+let time = 60;
+
+function spawn() {
+    return {
+        x: Math.random() * canvas.width,
+        y: canvas.height + 40,
+        r: 15 + Math.random() * 20,
+        speed: 1 + Math.random() * 2.2,
+        color: `hsl(${Math.random()*360},100%,60%)`
+    };
+}
+
+for (let i = 0; i < 15; i++) bubbles.push(spawn());
+
+function draw(b) {
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ctx.fillStyle = b.color;
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = b.color;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+}
+
+function loop() {
+    if (!running || paused) return;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    bubbles.forEach((b,i) => {
+        b.y -= b.speed;
+        draw(b);
+
+        if (b.y < -20) bubbles[i] = spawn();
+    });
+
+    requestAnimationFrame(loop);
+}
+
+function hit(x,y) {
+    for (let i=0;i<bubbles.length;i++) {
+        let b = bubbles[i];
+        let d = Math.hypot(x-b.x,y-b.y);
+        if (d < b.r) {
+            score++;
+            bubbles[i] = spawn();
+            updateHUD();
+            break;
+        }
+    }
+}
+
+canvas.addEventListener("click", e => {
+    if (!running || paused) return;
+    hit(e.clientX,e.clientY);
+});
+
+canvas.addEventListener("touchstart", e => {
+    if (!running || paused) return;
+    let t = e.touches[0];
+    hit(t.clientX,t.clientY);
+});
+
+function updateHUD() {
+    hud.innerText = `Neon Pop Frenzy | Score: ${score}` + (mode==="rush" ? ` | Time: ${time}` : "");
+}
+
+function startGame(m) {
+    mode = m;
+    score = 0;
+    time = 60;
+    running = true;
+    paused = false;
+    menu.style.display = "none";
+    updateHUD();
+    loop();
+}
+
+function goHome() {
+    running = false;
+    paused = false;
+    menu.style.display = "flex";
+}
+
+function restart() {
+    startGame(mode);
+}
+
+function togglePause() {
+    if (!running) return;
+    paused = !paused;
+    if (!paused) loop();
+}
+
+/* TIMER */
+setInterval(() => {
+    if (!running || paused || mode !== "rush") return;
+    time--;
+    updateHUD();
+    if (time <= 0) {
+        alert("Time up! Score: " + score);
+        goHome();
+    }
+}, 1000);
+</script>
+
+</body>
+</html>

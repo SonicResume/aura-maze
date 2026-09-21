@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sword Marksman ⚔️</title>
+  <style>
+    body {
+      margin: 0; background: #0b0f19; color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100vh; overflow: hidden; position: relative;
+    }
+    #hud { width: 800px; max-width: 95vw; display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 22px; font-weight: bold; }
+    #score-val { color: #38bdf8; } #ammo-val { color: #facc15; }
+    #game-container { position: relative; }
+    canvas { border: 4px solid #1e293b; background: linear-gradient(to bottom, #020617, #0f172a); border-radius: 12px; max-width: 95vw; max-height: 65vh; }
+    #throw-button {
+      position: absolute; bottom: 25px; right: 25px; width: 95px; height: 95px; background: #38bdf8;
+      border: 4px solid #bae6fd; border-radius: 50%; color: #0f172a; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; user-select: none; touch-action: none;
+    }
+    #throw-button:active { background: #0284c7; transform: scale(0.95); }
+    #back-btn { position: absolute; top: 15px; left: 15px; color: #fff; text-decoration: none; font-weight: bold; background: #334155; padding: 8px 14px; border-radius: 8px; font-size: 14px; z-index: 1000; }
+  </style>
+</head>
+<body>
+  <a id="back-btn" href="../index.html">⬅️ Menu</a>
+  <div id="hud">
+    <div>SWORDS: <span id="ammo-val">10</span></div>
+    <div>POINTS: <span id="score-val">0</span></div>
+  </div>
+  <div id="game-container">
+    <canvas id="marksmanCanvas" width="800" height="500"></canvas>
+    <div id="throw-button">THROW</div>
+  </div>
+  <script>
+    const canvas = document.getElementById("marksmanCanvas"); const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score-val"); const ammoEl = document.getElementById("ammo-val"); const throwBtn = document.getElementById("throw-button");
+    let score, ammo, gameOver, isCharging, chargePower, chargeDirection, activeSwords, targets, sparks;
+    const marksman = { x: 100, y: 400, angle: -Math.PI / 6 };
+
+    function resetMarksmanEngine() {
+      score = 0; ammo = 10; gameOver = false; isCharging = false; chargePower = 0; chargeDirection = 1;
+      activeSwords = []; targets = []; sparks = []; autoResetTimer = 3;
+      scoreEl.textContent = score; ammoEl.textContent = ammo;
+    }
+
+    window.addEventListener("keydown", (e) => { if(e.code === "Space" && !gameOver) { e.preventDefault(); isCharging = true; } });
+    window.addEventListener("keyup", (e) => { if(e.code === "Space" && isCharging) { releaseSword(); } });
+    throwBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); if(!gameOver) { isCharging = true; } });
+    window.addEventListener("pointerup", () => { if(isCharging) { releaseSword(); } });
+
+    function spawnTargets() {
+      if (targets.length < 3) {
+        targets.push({ x: 500 + Math.random() * 220, y: 100 + Math.random() * 200, radius: 24 + Math.random() * 12, vy: (Math.random() - 0.5) * 2, pulse: Math.random() * Math.PI });
+      }
+    }
+    function releaseSword() {
+      isCharging = false; if (ammo <= 0) return;
+      ammo--; ammoEl.textContent = ammo;
+      const finalVelocity = 8 + (chargePower * 14);
+      activeSwords.push({ x: marksman.x, y: marksman.y, vx: Math.cos(marksman.angle) * finalVelocity, vy: Math.sin(marksman.angle) * finalVelocity, rotation: marksman.angle, weight: 0.15 });
+      chargePower = 0; if (ammo <= 0 && activeSwords.length === 0) triggerGameOverDelay();
+    }
+    function createHitParticles(x, y) {
+      for (let i = 0; i < 12; i++) { sparks.push({ x, y, vx: (Math.random() - 0.5) * 8, vy: (Math.random() - 0.5) * 8, radius: Math.random() * 3 + 1, alpha: 1 }); }
+    }
+    function triggerGameOverDelay() {
+      setTimeout(() => { if (activeSwords.length === 0 && ammo <= 0) gameOver = true; }, 1500);
+    }
+
+    let autoResetTimer = 3;
+    function update() {
+      if (gameOver) {
+        ctx.fillStyle = "rgba(11, 15, 25, 0.9)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#facc15"; ctx.font = "bold 40px sans-serif"; ctx.textAlign = "center"; ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
+        ctx.font = "24px sans-serif"; ctx.fillStyle = "#ffffff"; ctx.fillText(`Final Score: ${score} Points`, canvas.width / 2, canvas.height / 2 + 20);
+        ctx.font = "18px sans-serif"; ctx.fillStyle = "#64748b"; ctx.fillText(`Restarting match in ${Math.ceil(autoResetTimer)}s...`, canvas.width / 2, canvas.height / 2 + 70);
+        autoResetTimer -= 0.016;
+        if (autoResetTimer <= 0) resetMarksmanEngine();
+        requestAnimationFrame(update); return;
+      }
+      requestAnimationFrame(update); spawnTargets();
+      if (isCharging) { chargePower += 0.02 * chargeDirection; if (chargePower >= 1 || chargePower <= 0) chargeDirection *= -1; }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save(); ctx.translate(marksman.x, marksman.y); ctx.rotate(marksman.angle); ctx.fillStyle = "#334155"; ctx.fillRect(-15, -15, 30, 30); ctx.fillStyle = "#64748b"; ctx.fillRect(10, -5, 25, 10); ctx.restore();
+      if (isCharging) { ctx.fillStyle = "rgba(56, 189, 248, 0.4)"; let pX = marksman.x; let pY = marksman.y; let pVx = Math.cos(marksman.angle) * (8 + chargePower * 14); let pVy = Math.sin(marksman.angle) * (8 + chargePower * 14); for (let i = 0; i < 30; i++) { pVy += 0.15; pX += pVx; pY += pVy; if (i % 3 === 0) { ctx.beginPath(); ctx.arc(pX, pY, 3, 0, Math.PI * 2); ctx.fill(); } } }
+      for (let i = activeSwords.length - 1; i >= 0; i--) {
+        const s = activeSwords[i]; s.vy += s.weight; s.x += s.vx; s.y += s.vy; s.rotation = Math.atan2(s.vy, s.vx) + Math.PI / 4;
+        ctx.save(); ctx.translate(s.x, s.y); ctx.rotate(s.rotation); ctx.fillStyle = "#e2e8f0"; ctx.fillRect(-2, -22, 4, 30); ctx.fillStyle = "#94a3b8"; ctx.fillRect(-8, 4, 16, 4); ctx.fillStyle = "#64748b"; ctx.fillRect(-3, 8, 6, 8); ctx.restore();
+        for (let j = targets.length - 1; j >= 0; j--) { const t = targets[j]; if (Math.hypot(s.x - t.x, s.y - t.y) < t.radius + 15) { createHitParticles(t.x, t.y); targets.splice(j, 1); activeSwords.splice(i, 1); score += 150; scoreEl.textContent = score; ammo++; ammoEl.textContent = ammo; break; } }
+        if (s.x > canvas.width + 50 || s.y > canvas.height + 50) { activeSwords.splice(i, 1); if (ammo <= 0 && activeSwords.length === 0) triggerGameOverDelay(); }
+      }
+      targets.forEach(t => { t.y += t.vy; t.pulse += 0.03; if (t.y < 80 || t.y > 340) t.vy *= -1; ctx.save(); ctx.translate(t.x, t.y); ctx.beginPath(); ctx.arc(0, 0, t.radius, 0, Math.PI * 2); ctx.fillStyle = "rgba(244, 63, 94, 0.2)"; ctx.fill(); ctx.lineWidth = 4; ctx.strokeStyle = "#f43f5e"; ctx.stroke(); ctx.beginPath(); ctx.arc(0, 0, t.radius / 2, 0, Math.PI * 2); ctx.fillStyle = "#f43f5e"; ctx.fill(); ctx.restore(); });
+      for (let i = sparks.length - 1; i >= 0; i--) { const p = sparks[i]; p.x += p.vx; p.y += p.vy; p.alpha -= 0.03; if (p.alpha <= 0) { sparks.splice(i, 1); continue; } ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = "#38bdf8"; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+    }
+    resetMarksmanEngine();
+    update();
+  </script>
+</body>
+</html>
