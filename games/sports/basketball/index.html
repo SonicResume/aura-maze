@@ -19,6 +19,35 @@
       display: block;
     }
   </style>
+
+<style>
+/* AURA-ARCADE-UNIFORM-VIEWPORT */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+body {
+  display: grid;
+  place-items: center;
+}
+
+#game,
+#game-container,
+canvas {
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+canvas {
+  display: block;
+}
+</style>
+
 </head>
 
 <body>
@@ -103,8 +132,8 @@
 
     const config = {
       type: Phaser.AUTO,
-      width: 1080,
-      height: 1920,
+      width: 1920,
+      height: 1080,
       scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
       physics: { default: 'arcade', arcade: { gravity: { y: 1000 }, debug: false } },
       scene: [BootScene, MainMenuScene, GameScene, GameOverScene, WinScene]
