@@ -1,5 +1,32 @@
-
 import { useEffect, useRef, useState } from 'react'
+
+const ARCADE_CSS = `
+  html, body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #000 !important;
+  }
+
+  body {
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  #game,
+  #game-container,
+  canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+
+  canvas {
+    display: block !important;
+    margin: auto !important;
+  }
+`
 
 export default function GamePlayer({ slug }) {
   const [game, setGame] = useState(null)
@@ -27,6 +54,28 @@ export default function GamePlayer({ slug }) {
 
     loadGame()
   }, [slug])
+
+  function normalizeGameViewport() {
+    const iframe = iframeRef.current
+    if (!iframe) return
+
+    try {
+      const doc = iframe.contentDocument
+      if (!doc) return
+
+      let style = doc.getElementById('aura-arcade-controller')
+
+      if (!style) {
+        style = doc.createElement('style')
+        style.id = 'aura-arcade-controller'
+        doc.head.appendChild(style)
+      }
+
+      style.textContent = ARCADE_CSS
+    } catch {
+      // Ignore games that don't expose their document.
+    }
+  }
 
   function goLibrary() {
     window.location.href = '/library'
@@ -136,21 +185,43 @@ export default function GamePlayer({ slug }) {
         </button>
       </div>
 
-      <iframe
-        ref={iframeRef}
-        title={game.name}
-        src={gameUrl}
+      <div
         style={{
           position: 'absolute',
           inset: 0,
-          width: '100%',
-          height: '100%',
-          border: 0,
-          display: 'block',
+          display: 'grid',
+          placeItems: 'center',
           background: '#000',
         }}
-        allow="autoplay; fullscreen; gamepad"
-      />
+      >
+        <div
+          style={{
+            position: 'relative',
+            width: 'min(100vw, calc(100vh * 16 / 9))',
+            height: 'min(100vh, calc(100vw * 9 / 16))',
+            aspectRatio: '16 / 9',
+            overflow: 'hidden',
+            background: '#000',
+          }}
+        >
+          <iframe
+            ref={iframeRef}
+            title={game.name}
+            src={gameUrl}
+            onLoad={normalizeGameViewport}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              border: 0,
+              display: 'block',
+              background: '#000',
+            }}
+            allow="autoplay; fullscreen; gamepad"
+          />
+        </div>
+      </div>
     </div>
   )
 }
