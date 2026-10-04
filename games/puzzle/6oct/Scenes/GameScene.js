@@ -569,12 +569,12 @@ class GameScene extends Phaser.Scene {
 
     // Grid left-center
     const cellW = (G.gridCellW ?? 92), cellH = (G.gridCellH ?? 92);
-    const gap = (G.gridGap ?? 10); // << new configurable gap
+    const gap = (G.gridGap ?? 14); // slightly more breathing room
 
     const gridW = this._grid.cols * cellW + (this._grid.cols - 1) * gap;
     const gridH = this._grid.rows * cellH + (this._grid.rows - 1) * gap;
     const gx = Math.max(60, (W * 0.55 - gridW) / 2);
-    const gy = Math.max(120, (H - gridH) / 2 - 20);
+    const gy = Math.max(150, (H - gridH) / 2 + 30);
 
     for (let r = 0; r < this._grid.rows; r++) {
       for (let c = 0; c < this._grid.cols; c++) {
